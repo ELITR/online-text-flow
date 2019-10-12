@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ELITR Online Text Flow</title>
+    <style>
+      .row {
+        display: flex;
+      }
+
+      .column {
+        flex: 50%;
+      }
+
+      ol {
+        display: flex;
+        flex-direction: column-reverse;
+      }
+
+      li {
+        flex: 0 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="row">
+
+      <div class="column">
+        <h1>EN</h1>
+
+        <h2>view</h2>
+        <p id="view-en"><em>{{ text.en }}</em></p>
+
+        <h2>flow</h2>
+        <ol id="flow-en"></ol>
+
+        <h2>data</h2>
+        <ol id="data-en"></ol>
+      </div>
+
+      <div class="column">
+        <h1>CS</h1>
+
+        <h2>view</h2>
+        <p id="view-cs"><em>{{ text.cs }}</em></p>
+
+        <h2>flow</h2>
+        <ol id="flow-cs"></ol>
+
+        <h2>data</h2>
+        <ol id="data-cs"></ol>
+      </div>
+
+    </div>
+
+    <script>
+      var sourceFlow = new EventSource("/flow");
+      var sourceData = new EventSource("/data");
+
+      var listenFlow = function (kind) {
+        var view = document.getElementById("view-" + kind);
+        var flow = document.getElementById("flow-" + kind);
+        return function (event) {
+          var data = JSON.parse(event.data);
+          var text = [];
+          for (line of data) {
+              text.push(line[2] + "\n");
+          }
+          view.innerHTML = text.join("\n");
+          flow.innerHTML += "<li><code>" + JSON.stringify(data) + "</code></li>";
+        }
+      }
+
+      var listenData = function (kind) {
+        var elem = document.getElementById("data-" + kind);
+        return function (event) {
+          var data = JSON.parse(event.data);
+          elem.innerHTML += "<li><code>" + JSON.stringify(data) + "</code></li>";
+        }
+      }
+
+      sourceFlow.onmessage = function (event) {
+        listenFlow("en")(event);
+        listenFlow("cs")(event);
+      }
+      sourceFlow.addEventListener("cs", listenFlow("cs"));
+      sourceFlow.addEventListener("en", listenFlow("en"));
+
+      sourceData.onmessage = function (event) {
+         listenData("en")(event);
+         listenData("cs")(event);
+      }
+      sourceData.addEventListener("cs", listenData("cs"));
+      sourceData.addEventListener("en", listenData("en"));
+    </script>
+
+  </body>
+</html>
