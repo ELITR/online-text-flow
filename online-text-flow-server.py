@@ -88,6 +88,14 @@ def dump():
     return json.jsonify(DATA)
 
 
+@app.route('/remove/<kind>')
+def clear(kind):
+    global DATA
+    size = len(DATA)
+    DATA = [ line for line in DATA if line['kind'] != kind ]
+    return json.jsonify({'kind': kind, 'size': len(DATA) - size})
+
+
 @app.route('/post', methods=['POST'])
 def post():
     data = flask.request.json
