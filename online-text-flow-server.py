@@ -85,7 +85,7 @@ def stat():
 
 @app.route('/dump')
 def dump():
-    return json.jsonify(DATA)
+    return json.jsonify({'DATA': DATA, 'FLOW': FLOW})
 
 
 @app.route('/remove/<kind>')
@@ -93,6 +93,7 @@ def clear(kind):
     global DATA
     size = len(DATA)
     DATA = [ line for line in DATA if line['kind'] != kind ]
+    del FLOW[kind]
     return json.jsonify({'kind': kind, 'size': len(DATA) - size})
 
 
