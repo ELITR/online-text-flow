@@ -84,7 +84,7 @@ def main(kind=''):
                 show['id'] = 'event-%s-%d' % (kind, uniq)
             else:
                 show['id'] = 'event-%d' % uniq
-            print(json.dumps(show), flush=True)
+            print(json.dumps(show, sort_keys=True), flush=True)
 
 
 if __name__ == '__main__':
