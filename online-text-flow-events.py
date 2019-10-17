@@ -27,19 +27,25 @@ class Flow():
         else:
             f = len(flow) - 1
             for f in range(f, -1, -1):
-                if flow[f][0] < data[0]:
+                if flow[f][1] <= data[0]:
                     f += 1
                     break
             t = f
             for t in range(t, len(flow)):
-                if flow[t][0] >= data[1]:
+                if flow[t][1] > data[1]:
                     t -= 1
                     break
             self.flow = flow[:f] + [data] + flow[t + 1:]
             self.drop = flow[f:t + 1]
             self.this = f
-            if data[1] <= flow[-1][1] and f <= self.sure:
+            if data[1] <= flow[-1][1]:
                 self.sure = f + 1
+            if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
+                words = self.flow[f + 1][2].split()
+                count = len(data[2].split())
+                self.drop.append([self.flow[f + 1][0], data[1], " ".join(words[:count])])
+                self.flow[f + 1][0] = data[1]
+                self.flow[f + 1][2] = " ".join(words[count:])
 
         flow = self.flow
         text = {"complete": [], "expected": [], "incoming": []}
@@ -70,9 +76,9 @@ def main(kind=''):
     uniq = 0
     for line in sys.stdin:
         try:
-            line = " ".join(line.split())
-            (f, t, text) = line.split(None, 2)
-            data = (int(f), int(t), text)
+            line = re.sub('<[^<>]*>', '', line)
+            data = line.split()
+            data = [int(data[0]), int(data[1]), " ".join(data[2:])]
         except:
             print(line, file=sys.stderr)
         else:
