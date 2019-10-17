@@ -41,27 +41,31 @@
       <div class="column">
         <h1>EN</h1>
 
-        <h2>text</h2>
+        <!--<h2>text</h2>-->
         <div id="text-en"><p><em>no events yet</em></p></div>
 
+        <!--
         <h2>flow</h2>
         <div id="flow-en"></div>
 
         <h2>data</h2>
         <div id="data-en"/></div>
+        -->
       </div>
 
       <div class="column">
         <h1>CS</h1>
 
-        <h2>text</h2>
+        <!--<h2>text</h2>-->
         <div id="text-cs"><p><em>no events yet</em></p></div>
 
+        <!--
         <h2>flow</h2>
         <div id="flow-cs"></div>
 
         <h2>data</h2>
         <div id="data-cs"></div>
+        -->
       </div>
 
     </div>
@@ -71,18 +75,22 @@
 
       var listen = function (kind) {
         var text = document.getElementById("text-" + kind);
+        /*
         var flow = document.getElementById("flow-" + kind);
         var data = document.getElementById("data-" + kind);
+        */
         return function (event) {
           var json = JSON.parse(event.data);
           showText(text, json);
+          /*
           showFlow(flow, json);
           showData(data, json);
+          */
         }
       }
 
       var showText = function (elem, json) {
-        var code = '<ol>';
+        var code = '<ol class="reverse">';
         for (text of json.text.complete) {
           code += '<li class="complete">' + text + '</li>';
         }
@@ -96,12 +104,14 @@
         elem.innerHTML = code;
       }
 
+      /*
       var showFlow = function (elem, json) {
       }
 
       var showData = function (elem, json) {
         elem.innerHTML = "<code>" + JSON.stringify(json.data) + "</code>";
       }
+      */
 
       events.onmessage = function (event) {
          listen("en")(event);
