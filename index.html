@@ -24,10 +24,12 @@
         color: red;
       }
 
+      /*
       ol.reverse {
         display: flex;
         flex-direction: column-reverse;
       }
+      */
 
       li {
         flex: 0 0 auto;
@@ -89,11 +91,14 @@
         }
       }
 
+      var keep = ''
+
       var showText = function (elem, json) {
         var code = '<ol class="reverse">';
         for (text of json.text.complete) {
-          code += '<li class="complete">' + text + '</li>';
+          keep += '<li class="complete">' + text + '</li>';
         }
+        code += keep;
         for (text of json.text.expected) {
           code += '<li class="expected">' + text + '</li>';
         }

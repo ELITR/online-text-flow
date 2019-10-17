@@ -13,6 +13,7 @@ class Flow():
         self.flow = []
         self.this = -1
         self.sure = 0
+        self.crop = 0
         self.text = {"complete": [],
                      "expected": [],
                      "incoming": []}
@@ -50,15 +51,26 @@ class Flow():
         flow = self.flow
         text = {"complete": [], "expected": [], "incoming": []}
         words = []
+        self.crop = 0
         for i in range(len(flow)):
             sents = sentences(flow[i][2], words)
-            if len(sents) > 1:
-                key = "complete" if i < self.sure else "expected"
-                text[key].extend(sents[:-1])
             words = sents[-1]
+            if len(sents) > 1:
+                if i < self.sure:
+                    text["complete"].extend(sents[:-1])
+                    if words:
+                        flow[i][2] = " ".join(words)
+                        self.crop = i
+                    else:
+                        self.crop = i + 1
+                else:
+                    text["expected"].extend(sents[:-1])
         if words:
             text["incoming"].extend([words])
         self.text = { key: [ " ".join(sent) for sent in text[key] ] for key in text }
+        self.flow = flow[self.crop:]
+        self.this -= self.crop
+        self.sure -= self.crop
 
 
 def sentences(data, words=[]):
