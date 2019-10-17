@@ -12,7 +12,19 @@
         flex: 50%;
       }
 
-      ol {
+      .complete {
+        color: black;
+      }
+
+      .expected {
+        color: grey;
+      }
+
+      .incoming {
+        color: red;
+      }
+
+      ol.reverse {
         display: flex;
         flex-direction: column-reverse;
       }
@@ -29,70 +41,74 @@
       <div class="column">
         <h1>EN</h1>
 
-        <h2>view</h2>
-        <p id="view-en"><em>{{ text.en }}</em></p>
+        <h2>text</h2>
+        <div id="text-en"><p><em>no events yet</em></p></div>
 
         <h2>flow</h2>
-        <ol id="flow-en"></ol>
+        <div id="flow-en"></div>
 
         <h2>data</h2>
-        <ol id="data-en"></ol>
+        <div id="data-en"/></div>
       </div>
 
       <div class="column">
         <h1>CS</h1>
 
-        <h2>view</h2>
-        <p id="view-cs"><em>{{ text.cs }}</em></p>
+        <h2>text</h2>
+        <div id="text-cs"><p><em>no events yet</em></p></div>
 
         <h2>flow</h2>
-        <ol id="flow-cs"></ol>
+        <div id="flow-cs"></div>
 
         <h2>data</h2>
-        <ol id="data-cs"></ol>
+        <div id="data-cs"></div>
       </div>
 
     </div>
 
     <script>
-      var sourceFlow = new EventSource("/flow");
-      var sourceData = new EventSource("/data");
+      var events = new EventSource("{{ data }}");
 
-      var listenFlow = function (kind) {
-        var view = document.getElementById("view-" + kind);
+      var listen = function (kind) {
+        var text = document.getElementById("text-" + kind);
         var flow = document.getElementById("flow-" + kind);
+        var data = document.getElementById("data-" + kind);
         return function (event) {
-          var data = JSON.parse(event.data);
-          var text = [];
-          for (line of data) {
-              text.push(line[2] + "\n");
-          }
-          view.innerHTML = text.join("\n");
-          flow.innerHTML += "<li><code>" + JSON.stringify(data) + "</code></li>";
+          var json = JSON.parse(event.data);
+          showText(text, json);
+          showFlow(flow, json);
+          showData(data, json);
         }
       }
 
-      var listenData = function (kind) {
-        var elem = document.getElementById("data-" + kind);
-        return function (event) {
-          var data = JSON.parse(event.data);
-          elem.innerHTML += "<li><code>" + JSON.stringify(data) + "</code></li>";
+      var showText = function (elem, json) {
+        var code = '<ol>';
+        for (text of json.text.complete) {
+          code += '<li class="complete">' + text + '</li>';
         }
+        for (text of json.text.expected) {
+          code += '<li class="expected">' + text + '</li>';
+        }
+        for (text of json.text.incoming) {
+          code += '<li class="incoming">' + text + '</li>';
+        }
+        code += '</ol>';
+        elem.innerHTML = code;
       }
 
-      sourceFlow.onmessage = function (event) {
-        listenFlow("en")(event);
-        listenFlow("cs")(event);
+      var showFlow = function (elem, json) {
       }
-      sourceFlow.addEventListener("cs", listenFlow("cs"));
-      sourceFlow.addEventListener("en", listenFlow("en"));
 
-      sourceData.onmessage = function (event) {
-         listenData("en")(event);
-         listenData("cs")(event);
+      var showData = function (elem, json) {
+        elem.innerHTML = "<code>" + JSON.stringify(json.data) + "</code>";
       }
-      sourceData.addEventListener("cs", listenData("cs"));
-      sourceData.addEventListener("en", listenData("en"));
+
+      events.onmessage = function (event) {
+         listen("en")(event);
+         listen("cs")(event);
+      }
+      events.addEventListener("cs", listen("cs"));
+      events.addEventListener("en", listen("en"));
     </script>
 
   </body>
