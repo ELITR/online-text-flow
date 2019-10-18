@@ -82,10 +82,11 @@ def sentences(data, words=[]):
     return sents
 
 
-def main(kind=''):
+def events(kind='', opts={}):
     kind = re.sub('\W', '-', " ".join(kind.split()))
     flow = Flow()
     uniq = 0
+    done = 0
     for line in sys.stdin:
         try:
             line = re.sub('<[^<>]*>', '', line)
@@ -96,13 +97,40 @@ def main(kind=''):
         else:
             flow.update(data)
             uniq += 1
-            show = {'data': {'flow': flow.flow, 'data': flow.data, 'text': flow.text}}
-            if kind:
-                show['event'] = kind
-                show['id'] = 'event-%s-%d' % (kind, uniq)
+            if '-j' in opts:
+                show = {'data': {'flow': flow.flow, 'data': flow.data, 'text': flow.text}}
+                if kind:
+                    show['event'] = kind
+                    show['id'] = 'event-%s-%d' % (kind, uniq)
+                else:
+                    show['id'] = 'event-%d' % uniq
+                print(json.dumps(show, sort_keys=True), flush=True)
+            elif '-t' in opts:
+                if flow.text['complete']:
+                    print("\n".join(flow.text['complete']), flush=True)
             else:
-                show['id'] = 'event-%d' % uniq
-            print(json.dumps(show, sort_keys=True), flush=True)
+                some = 0
+                for text in flow.text['complete']:
+                    done += 1
+                    some += 1
+                    print("%d00 %d00 %s" % (some, some + 1, text), flush=True)
+                for text in flow.text['expected']:
+                    some += 1
+                    print("%d00 %d10 %s" % (some, some, text), flush=True)
+                for text in flow.text['incoming']:
+                    some += 1
+                    print("%d00 %d01 %s" % (some, some, text), flush=True)
+
+
+def main(*args):
+    opts = { arg for arg in args if re.search('^-[hjt]$|^--(help|json|text)$', arg) }
+    pars = [ arg for arg in args if arg not in opts and not re.search('^-', arg) ]
+    opts = { opt[:3][-2:] for opt in opts }
+    if '-h' in opts or len(args) > len(opts) + len(pars) or len(pars) > 1:
+        print('online-text-flow-events.py [--(help|json|text)] [NAME]', file=sys.stderr)
+        print('                            control the output        ', file=sys.stderr)
+    else:
+        events(pars[0] if pars else '', opts)
 
 
 if __name__ == '__main__':
