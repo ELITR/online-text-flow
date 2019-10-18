@@ -109,7 +109,7 @@ def events(kind='', opts={}):
                 if flow.text['complete']:
                     print("\n".join(flow.text['complete']), flush=True)
             else:
-                some = 0
+                some = done
                 for text in flow.text['complete']:
                     done += 1
                     some += 1
