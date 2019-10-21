@@ -35,9 +35,13 @@
         flex: 0 0 auto;
       }
 
-      .data {
+      td.data {
+        /*
         display: flex;
         flex-direction: row;
+        flex: 0 0 auto;
+        */
+        vertical-align: top;
       }
     </style>
   </head>
@@ -71,24 +75,24 @@
       var keep = ''
 
       var show = function (elem, json) {
-        var code = '<ol class="reverse">';
+        var code = '<table class="reverse">';
         for (text of json.text.complete) {
-          keep += '<li class="complete">' + '<div class="data">' + text[0] + '</div>'
-                                          + '<div class="data">' + text[1] + '</div>'
-                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
+          keep += '<tr class="complete">' + '<td class="data">' + text[0] + '</td>'
+                                          + '<td class="data">' + text[1] + '</td>'
+                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
         }
         code += keep;
         for (text of json.text.expected) {
-          code += '<li class="expected">' + '<div class="data">' + text[0] + '</div>'
-                                          + '<div class="data">' + text[1] + '</div>'
-                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
+          code += '<tr class="expected">' + '<td class="data">' + text[0] + '</td>'
+                                          + '<td class="data">' + text[1] + '</td>'
+                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
         }
         for (text of json.text.incoming) {
-          code += '<li class="incoming">' + '<div class="data">' + text[0] + '</div>'
-                                          + '<div class="data">' + text[1] + '</div>'
-                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
+          code += '<tr class="incoming">' + '<td class="data">' + text[0] + '</td>'
+                                          + '<td class="data">' + text[1] + '</td>'
+                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
         }
-        code += '</ol>';
+        code += '</table>';
         elem.innerHTML = code;
       }
 
