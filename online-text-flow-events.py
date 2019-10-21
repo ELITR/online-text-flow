@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""Online Text Flow Events"""
+
+__copyright__ = "2019"
+__homepage__  = "http://github.com/ELITR/online-text-flow/"
+__license__   = "GPL"
+__author__    = "Otakar Smrz"
+__email__     = "otakar-smrz users.sf.net"
+
+
 import json
 import re
 import sys
@@ -47,9 +56,12 @@ class Flow():
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
                 words = self.flow[f + 1][2].split()
                 count = len(data[2].split())
-                self.drop.append([self.flow[f + 1][0], data[1], " ".join(words[:count])])
-                self.flow[f + 1][0] = data[1]
-                self.flow[f + 1][2] = " ".join(words[count:])
+                minus = sum(len(drop[2].split()) for drop in self.drop)
+                if count > minus:
+                    self.drop.append([self.flow[f + 1][0], data[1],
+                                      " ".join(words[:count - minus])])
+                    self.flow[f + 1][0] = data[1]
+                    self.flow[f + 1][2] = " ".join(words[count - minus:])
 
     def __text__(self):
         flow = self.flow
