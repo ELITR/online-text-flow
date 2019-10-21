@@ -34,6 +34,11 @@
       li {
         flex: 0 0 auto;
       }
+
+      .data {
+        display: flex;
+        flex-direction: row;
+      }
     </style>
   </head>
   <body>
@@ -68,14 +73,20 @@
       var show = function (elem, json) {
         var code = '<ol class="reverse">';
         for (text of json.text.complete) {
-          keep += '<li class="complete">' + text + '</li>';
+          keep += '<li class="complete">' + '<div class="data">' + text[0] + '</div>'
+                                          + '<div class="data">' + text[1] + '</div>'
+                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
         }
         code += keep;
         for (text of json.text.expected) {
-          code += '<li class="expected">' + text + '</li>';
+          code += '<li class="expected">' + '<div class="data">' + text[0] + '</div>'
+                                          + '<div class="data">' + text[1] + '</div>'
+                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
         }
         for (text of json.text.incoming) {
-          code += '<li class="incoming">' + text + '</li>';
+          code += '<li class="incoming">' + '<div class="data">' + text[0] + '</div>'
+                                          + '<div class="data">' + text[1] + '</div>'
+                                          + '<div class="data">' + text[2] + '</div>' + '</li>';
         }
         code += '</ol>';
         elem.innerHTML = code;
