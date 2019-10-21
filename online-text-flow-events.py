@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""Online Text Flow Events"""
+
+__copyright__ = "2019"
+__homepage__  = "http://github.com/ELITR/online-text-flow/"
+__license__   = "GPL"
+__author__    = "Otakar Smrz"
+__email__     = "otakar-smrz users.sf.net"
+
+
 import json
 import re
 import sys
@@ -14,14 +23,17 @@ class Flow():
         self.this = -1
         self.sure = 0
         self.crop = 0
-        self.text = {"complete": [],
-                     "expected": [],
-                     "incoming": []}
+        self.done = 0
+        self.text = {"complete": [], "expected": [], "incoming": []}
 
     def update(self, data):
         self.data = data
-        flow = self.flow
+        self.__flow__()
+        self.__text__()
 
+    def __flow__(self):
+        data = self.data
+        flow = self.flow
         if not flow:
             self.flow = [data]
             self.this = 0
@@ -44,10 +56,14 @@ class Flow():
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
                 words = self.flow[f + 1][2].split()
                 count = len(data[2].split())
-                self.drop.append([self.flow[f + 1][0], data[1], " ".join(words[:count])])
-                self.flow[f + 1][0] = data[1]
-                self.flow[f + 1][2] = " ".join(words[count:])
+                minus = sum(len(drop[2].split()) for drop in self.drop)
+                if count > minus:
+                    self.drop.append([self.flow[f + 1][0], data[1],
+                                      " ".join(words[:count - minus])])
+                    self.flow[f + 1][0] = data[1]
+                    self.flow[f + 1][2] = " ".join(words[count - minus:])
 
+    def __text__(self):
         flow = self.flow
         text = {"complete": [], "expected": [], "incoming": []}
         words = []
@@ -67,7 +83,17 @@ class Flow():
                     text["expected"].extend(sents[:-1])
         if words:
             text["incoming"].extend([words])
-        self.text = { key: [ " ".join(sent) for sent in text[key] ] for key in text }
+        done = self.done
+        text["complete"] = [ [i * 100, i * 100 + 100, " ".join(t)]
+                             for (i, t) in enumerate(text["complete"], done + 1) ]
+        done += len(text["complete"])
+        self.done = done
+        text["expected"] = [ [i * 100, i * 100 + 10, " ".join(t)]
+                             for (i, t) in enumerate(text["expected"], done + 1) ]
+        done += len(text["expected"])
+        text["incoming"] = [ [i * 100, i * 100 + 1, " ".join(t)]
+                             for (i, t) in enumerate(text["incoming"], done + 1) ]
+        self.text = text
         self.flow = flow[self.crop:]
         self.this -= self.crop
         self.sure -= self.crop
@@ -86,7 +112,6 @@ def events(kind='', opts={}):
     kind = re.sub('\W', '-', " ".join(kind.split()))
     flow = Flow()
     uniq = 0
-    done = 0
     for line in sys.stdin:
         try:
             line = re.sub('<[^<>]*>', '', line)
@@ -96,8 +121,11 @@ def events(kind='', opts={}):
             print(line, file=sys.stderr)
         else:
             flow.update(data)
-            uniq += 1
-            if '-j' in opts:
+            if '-t' in opts:
+                if flow.text["complete"]:
+                    print("\n".join(t for [i, j, t] in flow.text["complete"]), flush=True)
+            elif '-j' in opts:
+                uniq += 1
                 show = {'data': {'flow': flow.flow, 'data': flow.data, 'text': flow.text}}
                 if kind:
                     show['event'] = kind
@@ -105,21 +133,13 @@ def events(kind='', opts={}):
                 else:
                     show['id'] = 'event-%d' % uniq
                 print(json.dumps(show, sort_keys=True), flush=True)
-            elif '-t' in opts:
-                if flow.text['complete']:
-                    print("\n".join(flow.text['complete']), flush=True)
             else:
-                some = done
-                for text in flow.text['complete']:
-                    done += 1
-                    some += 1
-                    print("%d00 %d00 %s" % (some, some + 1, text), flush=True)
-                for text in flow.text['expected']:
-                    some += 1
-                    print("%d00 %d10 %s" % (some, some, text), flush=True)
-                for text in flow.text['incoming']:
-                    some += 1
-                    print("%d00 %d01 %s" % (some, some, text), flush=True)
+                for key in ["complete", "expected", "incoming"]:
+                    for [i, j, t] in flow.text[key]:
+                        print("%d %d %s" % (i, j, t), flush=True)
+    if '-t' in opts:
+        print("".join("\n" + t for [i, j, t] in flow.text["expected"]), flush=True)
+        print("".join("\n" + t for [i, j, t] in flow.text["incoming"]), flush=True)
 
 
 def main(*args):
@@ -130,7 +150,10 @@ def main(*args):
         print('online-text-flow-events.py [--(help|json|text)] [NAME]', file=sys.stderr)
         print('                            control the output        ', file=sys.stderr)
     else:
-        events(pars[0] if pars else '', opts)
+        try:
+            events(pars[0] if pars else '', opts)
+        except BrokenPipeError:
+            sys.stderr.close()
 
 
 if __name__ == '__main__':
