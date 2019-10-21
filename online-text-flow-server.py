@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""Online Text Flow Server"""
+
+__copyright__ = "2019"
+__homepage__  = "http://github.com/ELITR/online-text-flow/"
+__license__   = "GPL"
+__author__    = "Otakar Smrz"
+__email__     = "otakar-smrz users.sf.net"
+
+
 from flask import json
 
 import flask
