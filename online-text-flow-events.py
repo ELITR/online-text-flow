@@ -14,14 +14,16 @@ class Flow():
         self.this = -1
         self.sure = 0
         self.crop = 0
-        self.text = {"complete": [],
-                     "expected": [],
-                     "incoming": []}
+        self.text = {}
 
     def update(self, data):
         self.data = data
-        flow = self.flow
+        self.__flow__()
+        self.__text__()
 
+    def __flow__(self):
+        data = self.data
+        flow = self.flow
         if not flow:
             self.flow = [data]
             self.this = 0
@@ -48,6 +50,7 @@ class Flow():
                 self.flow[f + 1][0] = data[1]
                 self.flow[f + 1][2] = " ".join(words[count:])
 
+    def __text__(self):
         flow = self.flow
         text = {"complete": [], "expected": [], "incoming": []}
         words = []
