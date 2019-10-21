@@ -5,9 +5,6 @@ Online event streaming to improve data and text flows
 
 Process the data locally:
 
-    cat data/en.txt | ./online-text-flow-events.py en | jq '.data.text'
-    cat data/cs.txt | ./online-text-flow-events.py cs | jq '.data.text'
-    
     cat data/en.txt | ./online-text-flow-events.py
     cat data/en.txt | ./online-text-flow-events.py --json
     cat data/en.txt | ./online-text-flow-events.py --text
