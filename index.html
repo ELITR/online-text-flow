@@ -50,6 +50,14 @@
         color: red;
       }
 
+      .idx {
+        text-align: right;
+      }
+
+      .idx:after {
+        content: ".";
+      }
+
       .fst, .snd {
         display: none;
       }
@@ -88,7 +96,8 @@
       var flow = {"en": '', "cs": ''}
 
       var html = function (data) {
-        var zero = data[0]//.substring(0, data[0].length - 2);
+        var zero = data[0] + '' // need the string not promise
+        zero = zero.substring(0, zero.length - 2);
         return '<div class="idx item">' + zero    + '</div>' +
                '<div class="fst item">' + data[0] + '</div>' +
                '<div class="snd item">' + data[1] + '</div>' +
