@@ -56,18 +56,13 @@ def main(kind='', url='http://127.0.0.1:5000'):
             else:
                 data = line.split()
                 data = [int(data[0]), int(data[1]), " ".join(data[2:])]
-
-                diff = data[1] - data[0]
-
-                if (key[diff] == "complete" and (event['data']['text']['expected']  or
-                                                 event['data']['text']['incoming']) or
-                    key[diff] == "expected" and  event['data']['text']['incoming']):
+                text = event['data']['text']
+                text = text["complete"] + text["expected"] + text["incoming"]
+                if text and not text[-1][0] < data[0]:
                     event = post(event, url)
-
-                event['data']['text'][key[diff]].append(data)
+                event['data']['text'][key[data[1] - data[0]]].append(data)
         except:
-            raise
-            # print(line, file=sys.stderr)
+            print(line, file=sys.stderr)
     post(event, url)
 
 
