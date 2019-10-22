@@ -24,24 +24,37 @@
         color: silver;
       }
 
-      /*
-      ol.reverse {
-        display: flex;
-        flex-direction: column-reverse;
-      }
-      */
-
-      li {
-        flex: 0 0 auto;
-      }
-
-      td.data {
-        /*
-        display: flex;
-        flex-direction: row;
-        flex: 0 0 auto;
-        */
+      .flow {
+        display: table;
         vertical-align: top;
+      }
+
+      .data {
+        display: table-row;
+      }
+
+      .item {
+        display: table-cell;
+        padding-right: 10px;
+      }
+
+      .complete .idx {
+        color: silver;
+      }
+
+      .expected .idx {
+        color: orange;
+      }
+
+      .incoming .idx {
+        color: red;
+      }
+
+      .fst, .snd {
+        display: none;
+      }
+
+      .trd {
       }
     </style>
   </head>
@@ -65,34 +78,37 @@
       var events = new EventSource("{{ data }}");
 
       var listen = function (kind) {
-        var text = document.getElementById("text-" + kind);
+        var elem = document.getElementById("text-" + kind);
         return function (event) {
           var json = JSON.parse(event.data);
-          show(text, json);
+          show(kind, elem, json);
         }
       }
 
-      var keep = ''
+      var flow = {"en": '', "cs": ''}
 
-      var show = function (elem, json) {
-        var code = '<table class="reverse">';
-        for (text of json.text.complete) {
-          keep += '<tr class="complete">' + '<td class="data">' + text[0] + '</td>'
-                                          + '<td class="data">' + text[1] + '</td>'
-                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
+      var html = function (data) {
+        var zero = data[0]//.substring(0, data[0].length - 2);
+        return '<div class="idx item">' + zero    + '</div>' +
+               '<div class="fst item">' + data[0] + '</div>' +
+               '<div class="snd item">' + data[1] + '</div>' +
+               '<div class="trd item">' + data[2] + '</div>';
+      }
+
+      var show = function (kind, elem, json) {
+        var code = '<div class="events flow">';
+        for (data of json.text.complete) {
+          flow[kind] +=
+                  '<div class="complete data">' + html(data) + '</div>';
         }
-        code += keep;
-        for (text of json.text.expected) {
-          code += '<tr class="expected">' + '<td class="data">' + text[0] + '</td>'
-                                          + '<td class="data">' + text[1] + '</td>'
-                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
+        code += flow[kind];
+        for (data of json.text.expected) {
+          code += '<div class="expected data">' + html(data) + '</div>';
         }
-        for (text of json.text.incoming) {
-          code += '<tr class="incoming">' + '<td class="data">' + text[0] + '</td>'
-                                          + '<td class="data">' + text[1] + '</td>'
-                                          + '<td class="data">' + text[2] + '</td>' + '</tr>';
+        for (data of json.text.incoming) {
+          code += '<div class="incoming data">' + html(data) + '</div>';
         }
-        code += '</table>';
+        code += '</div>';
         elem.innerHTML = code;
       }
 
