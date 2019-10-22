@@ -28,6 +28,21 @@ View the event stream of the data and post to the endpoint:
 - http://127.0.0.1:5000/data
 - http://127.0.0.1:5000/post
 
+Run the server remotely and post the data to it from your client:
+
+    @quest.ms.mff.cuni.cz> git pull
+    @quest.ms.mff.cuni.cz> ln -s online-text-flow-server.py app.py
+    @quest.ms.mff.cuni.cz> ~/.local/bin/flask run --host 195.113.20.53
+
+    cat data/en.txt | ./online-text-flow-events.py | ./online-text-flow-client.py en http://quest.ms.mff.cuni.cz:5000
+    cat data/cs.txt | ./online-text-flow-events.py | ./online-text-flow-client.py cs http://quest.ms.mff.cuni.cz:5000
+
+View the event stream of the data and post to the endpoint:
+
+- http://quest.ms.mff.cuni.cz:5000
+- http://quest.ms.mff.cuni.cz:5000/data
+- http://quest.ms.mff.cuni.cz:5000/post
+
 ## Further Notes
 
 ### online-text-flow-events.py
