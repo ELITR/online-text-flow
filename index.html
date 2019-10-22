@@ -76,6 +76,11 @@
       </div>
 
       <div class="column">
+        <h1>DE</h1>
+        <div id="text-de"><p><em>no events yet</em></p></div>
+      </div>
+
+      <div class="column">
         <h1>CS</h1>
         <div id="text-cs"><p><em>no events yet</em></p></div>
       </div>
@@ -93,7 +98,7 @@
         }
       }
 
-      var flow = {"en": '', "cs": ''}
+      var flow = {"en": '', "de": '', "cs": ''}
 
       var html = function (data) {
         var zero = data[0] + '' // need the string not promise
@@ -123,10 +128,12 @@
 
       events.onmessage = function (event) {
          listen("en")(event);
+         listen("de")(event);
          listen("cs")(event);
       }
-      events.addEventListener("cs", listen("cs"));
       events.addEventListener("en", listen("en"));
+      events.addEventListener("de", listen("de"));
+      events.addEventListener("cs", listen("cs"));
     </script>
 
   </body>
