@@ -16,6 +16,8 @@ import os
 
 app = flask.Flask(__name__, template_folder=".")
 
+app.secret_key = os.urandom(12)
+
 DATA = {'id': ''}
 
 
@@ -69,6 +71,5 @@ def index():
 
 
 if __name__ == '__main__':
-    app.secret_key = os.urandom(12)
     app.run(threaded=True, debug=True)
     # app.run(ssl_context='adhoc')
