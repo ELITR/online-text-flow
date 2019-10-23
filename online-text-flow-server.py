@@ -9,10 +9,10 @@ __author__    = "Otakar Smrz"
 __email__     = "otakar-smrz users.sf.net"
 
 
-from flask import json
+from flask import json, request, session
 
 import flask
-import time as sleep
+import os
 
 app = flask.Flask(__name__, template_folder=".")
 
@@ -32,7 +32,7 @@ def events():
 @app.route('/post', methods=['POST'])
 def post():
     global DATA
-    DATA = flask.request.json
+    DATA = request.json
     return json.jsonify(DATA)
 
 
@@ -41,13 +41,34 @@ def data():
     return flask.Response(events(), mimetype="text/event-stream")
 
 
+@app.route("/logout")
+def logout():
+    session['auth'] = False
+    flask.flash('You have been logged out')
+    return flask.redirect('/')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.form['pass'] == 'elitr' and request.form['user'] == 'elitr':
+            session['auth'] = True
+        else:
+            flask.flash('The credentials are invalid')
+        return flask.redirect('/')
+    else:
+        return flask.render_template('login.html')
+
+
 @app.route('/')
-def home():
-    return flask.render_template('index.html', data='/data')
+def index():
+    if session.get('auth'):
+        return flask.render_template('index.html', data='/data')
+    else:
+        return flask.redirect('/login')
 
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(threaded=True)
-    # app.run()
+    app.secret_key = os.urandom(12)
+    app.run(threaded=True, debug=True)
     # app.run(ssl_context='adhoc')
