@@ -39,7 +39,7 @@ def post(event, url):
         event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
         reply = requests.post(url + '/post', json=event)
-        print(reply.text)
+        # print(reply.text)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
