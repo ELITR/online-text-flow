@@ -9,7 +9,7 @@
       }
 
       .column {
-        flex: 50%;
+        flex: 1 1 50%;
       }
 
       .complete {
@@ -64,41 +64,37 @@
 
       .trd {
       }
+
+      h1 {
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body>
-
-    <div class="row">
-
-      <div class="column">
-        <h1>EN</h1>
-        <div id="text-en"><p><em>no events yet</em></p></div>
-      </div>
-
-      <div class="column">
-        <h1>DE</h1>
-        <div id="text-de"><p><em>no events yet</em></p></div>
-      </div>
-
-      <div class="column">
-        <h1>CS</h1>
-        <div id="text-cs"><p><em>no events yet</em></p></div>
-      </div>
-
-    </div>
-
+    <div id="event-flows" class="row"></div>
     <script>
+      var flow = {"en": '', "de": '', "cs": ''}
+
+      var code = ''
+      for (kind in flow) {
+        code += '<div class="column ' + kind + '">' +
+                '<h1>' + kind + '</h1>' +
+                '<div id="flow-' + kind + '">' +
+                '<p><em>no events yet</em></p>' +
+                '</div>' +
+                '</div>';
+      }
+      document.getElementById("event-flows").innerHTML = code;
+
       var events = new EventSource("{{ data }}");
 
       var listen = function (kind) {
-        var elem = document.getElementById("text-" + kind);
+        var elem = document.getElementById("flow-" + kind);
         return function (event) {
           var json = JSON.parse(event.data);
           show(kind, elem, json);
         }
       }
-
-      var flow = {"en": '', "de": '', "cs": ''}
 
       var html = function (data) {
         var zero = data[0] + '' // need the string not promise
@@ -127,14 +123,13 @@
       }
 
       events.onmessage = function (event) {
-         listen("en")(event);
-         listen("de")(event);
-         listen("cs")(event);
+         for (kind in flow) {
+           listen(kind)(event);
+         }
       }
-      events.addEventListener("en", listen("en"));
-      events.addEventListener("de", listen("de"));
-      events.addEventListener("cs", listen("cs"));
+      for (kind in flow) {
+        events.addEventListener(kind, listen(kind));
+      }
     </script>
-
   </body>
 </html>
