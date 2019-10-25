@@ -14,6 +14,9 @@ import re
 import sys
 
 
+code = {"complete": 100, "expected": 10, "incoming": 1}
+
+
 class Flow():
 
     def __init__(self):
@@ -24,7 +27,7 @@ class Flow():
         self.sure = 0
         self.crop = 0
         self.done = 0
-        self.text = {"complete": [], "expected": [], "incoming": []}
+        self.text = empty()
 
     def update(self, data):
         self.data = data
@@ -65,7 +68,7 @@ class Flow():
 
     def __text__(self):
         flow = self.flow
-        text = {"complete": [], "expected": [], "incoming": []}
+        text = empty()
         words = []
         self.crop = 0
         for i in range(len(flow)):
@@ -84,19 +87,25 @@ class Flow():
         if words:
             text["incoming"].extend([words])
         done = self.done
-        text["complete"] = [ [i * 100, i * 100 + 100, " ".join(t)]
-                             for (i, t) in enumerate(text["complete"], done + 1) ]
+        text["complete"] = enumerated(text, "complete", done)
         done += len(text["complete"])
         self.done = done
-        text["expected"] = [ [i * 100, i * 100 + 10, " ".join(t)]
-                             for (i, t) in enumerate(text["expected"], done + 1) ]
+        text["expected"] = enumerated(text, "expected", done)
         done += len(text["expected"])
-        text["incoming"] = [ [i * 100, i * 100 + 1, " ".join(t)]
-                             for (i, t) in enumerate(text["incoming"], done + 1) ]
+        text["incoming"] = enumerated(text, "incoming", done)
         self.text = text
         self.flow = flow[self.crop:]
         self.this -= self.crop
         self.sure -= self.crop
+
+
+def empty():
+    return {"complete": [], "expected": [], "incoming": []}
+
+
+def enumerated(text, key, done):
+    return [ [i * 100, i * 100 + code[key], " ".join(t)]
+             for (i, t) in enumerate(text[key], done + 1) ]
 
 
 def sentences(data, words=[]):

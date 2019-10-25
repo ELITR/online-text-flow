@@ -15,7 +15,7 @@ import re
 import sys
 
 
-key = {100: "complete", 10: "expected", 1: "incoming"}
+code = {100: "complete", 10: "expected", 1: "incoming"}
 
 
 def empty(kind='', uniq=1):
@@ -60,7 +60,7 @@ def main(kind='', url='http://127.0.0.1:5000'):
                 text = text["complete"] + text["expected"] + text["incoming"]
                 if text and not text[-1][0] < data[0]:
                     event = post(event, url)
-                event['data']['text'][key[data[1] - data[0]]].append(data)
+                event['data']['text'][code[data[1] - data[0]]].append(data)
         except:
             print(line, file=sys.stderr)
     post(event, url)
