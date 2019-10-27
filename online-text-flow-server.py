@@ -13,6 +13,8 @@ from flask import json, request, session
 
 import flask
 import os
+import click
+
 
 app = flask.Flask(__name__, template_folder=".")
 
@@ -70,6 +72,18 @@ def index():
         return flask.redirect('/login')
 
 
+@click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--host', default='127.0.0.1', show_default=True)
+@click.option('--port', default='5000', show_default=True)
+@click.option('--debug', default=True, show_default=True)
+@click.option('--threaded', default=True, show_default=True)
+@click.option('--ssl_context', default=None, show_default=True)
+def main(**opts):
+    """
+    Run the app. Post events at /post and listen to their stream at /data.
+    """
+    app.run(**opts)
+
+
 if __name__ == '__main__':
-    app.run(threaded=True, debug=True)
-    # app.run(ssl_context='adhoc')
+    main()

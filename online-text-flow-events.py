@@ -12,9 +12,12 @@ __email__     = "otakar-smrz users.sf.net"
 import json
 import re
 import sys
+import click
 
 
 code = {"complete": 100, "expected": 10, "incoming": 1}
+
+opts = {}
 
 
 class Flow():
@@ -117,7 +120,7 @@ def sentences(data, words=[]):
     return sents
 
 
-def events(kind='', opts={}):
+def events(kind=''):
     kind = re.sub('\W', '-', " ".join(kind.split()))
     flow = Flow()
     uniq = 0
@@ -130,10 +133,10 @@ def events(kind='', opts={}):
             print(line, file=sys.stderr)
         else:
             flow.update(data)
-            if '-t' in opts:
+            if opts['-t']:
                 if flow.text["complete"]:
                     print("\n".join(t for [i, j, t] in flow.text["complete"]), flush=True)
-            elif '-j' in opts:
+            elif opts['-j']:
                 uniq += 1
                 show = {'data': {'flow': flow.flow, 'data': flow.data, 'text': flow.text}}
                 if kind:
@@ -146,24 +149,32 @@ def events(kind='', opts={}):
                 for key in ["complete", "expected", "incoming"]:
                     for [i, j, t] in flow.text[key]:
                         print("%d %d %s" % (i, j, t), flush=True)
-    if '-t' in opts:
+    if opts['-t']:
         print("".join("\n" + t for [i, j, t] in flow.text["expected"]), flush=True)
         print("".join("\n" + t for [i, j, t] in flow.text["incoming"]), flush=True)
 
 
-def main(*args):
-    opts = { arg for arg in args if re.search('^-[hjt]$|^--(help|json|text)$', arg) }
-    pars = [ arg for arg in args if arg not in opts and not re.search('^-', arg) ]
-    opts = { opt[:3][-2:] for opt in opts }
-    if '-h' in opts or len(args) > len(opts) + len(pars) or len(pars) > 1:
-        print('online-text-flow-events.py [--(help|json|text)] [NAME]', file=sys.stderr)
-        print('                            control the output        ', file=sys.stderr)
-    else:
-        try:
-            events(pars[0] if pars else '', opts)
-        except BrokenPipeError:
-            sys.stderr.close()
+@click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('kind', default='')
+@click.option('-j', '--json', is_flag=True, default=False, show_default=True,
+              help='Output JSON objects with detailed information, unless the --text option is used.')
+@click.option('-t', '--text', is_flag=True, default=False, show_default=True,
+              help='Output the resulting "complete", "expected", "incoming" text, delimited by blank lines.')
+def main(kind, json, text):
+    """
+    Turn data from ASR into text for NMT. Events are classified sentences
+    rather than text chunks evolving in time and disturbing the flow.
+
+    If not empty, KIND is used to name the events being emitted in the JSON
+    format. The KIND is empty by default.
+    """
+    opts['-j'] = json
+    opts['-t'] = text
+    try:
+        events(kind)
+    except BrokenPipeError:
+        sys.stderr.close()
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:])
+    main()
