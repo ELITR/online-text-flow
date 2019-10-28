@@ -22,8 +22,8 @@ opts = {}
 
 
 def empty(kind='', uniq=1):
-    event = {'data': {'flow': [],
-                      'data': [],
+    event = {'data': {'data': [],
+                      'flow': [],
                       'text': {"complete": [],
                                "expected": [],
                                "incoming": []}}}
@@ -36,10 +36,7 @@ def empty(kind='', uniq=1):
 def post(event, url):
     kind = event['event'] if 'event' in event else ''
     uniq = event['id']
-    if isinstance(uniq, str):
-        uniq = int(re.search('-([0-9]+)$', uniq).group(1))
-    else:
-        event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
+    event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
         reply = requests.post(url + '/post', json=event)
         if opts['-v']:
@@ -64,9 +61,8 @@ def main(kind, url, verbose):
     being built from the consequtive lines until considered complete, and then
     posted as KIND. If the data on a line is a JSON object, the event being
     built is closed and posted, then the data object is posted as an event of
-    its own, without further checks and regard to the KIND. Lines that do not
-    fit the semantics are ignored. They do not close the event in progress and
-    are printed to the standard error.
+    its own. Lines that do not fit the semantics are ignored. They do not
+    close the event in progress and are printed to the standard error.
     """
     opts['-v'] = verbose
     kind = re.sub('\W', '-', " ".join(kind.split()))
@@ -75,7 +71,8 @@ def main(kind, url, verbose):
         try:
             if line[:1] == "{":
                 event = post(event, url)
-                post(json.loads(line), url)
+                event['data'] = json.loads(line)
+                event = post(event, url)
             else:
                 data = line.split()
                 data = [int(data[0]), int(data[1]), " ".join(data[2:])]

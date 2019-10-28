@@ -120,10 +120,8 @@ def sentences(data, words=[]):
     return sents
 
 
-def events(kind=''):
-    kind = re.sub('\W', '-', " ".join(kind.split()))
+def events():
     flow = Flow()
-    uniq = 0
     for line in sys.stdin:
         try:
             line = re.sub('<[^<>]*>', '', line)
@@ -133,45 +131,36 @@ def events(kind=''):
             print(line, file=sys.stderr)
         else:
             flow.update(data)
-            if opts['-t']:
+            if '-t' in opts:
                 if flow.text["complete"]:
                     print("\n".join(t for [i, j, t] in flow.text["complete"]), flush=True)
-            elif opts['-j']:
-                uniq += 1
-                show = {'data': {'flow': flow.flow, 'data': flow.data, 'text': flow.text}}
-                if kind:
-                    show['event'] = kind
-                    show['id'] = 'event-%s-%d' % (kind, uniq)
-                else:
-                    show['id'] = 'event-%d' % uniq
-                print(json.dumps(show, sort_keys=True), flush=True)
+            elif '-j' in opts:
+                print(json.dumps({'data': flow.data, 'flow': flow.flow, 'text': flow.text},
+                                 sort_keys=True), flush=True)
             else:
                 for key in ["complete", "expected", "incoming"]:
                     for [i, j, t] in flow.text[key]:
                         print("%d %d %s" % (i, j, t), flush=True)
-    if opts['-t']:
+    if '-t' in opts:
         print("".join("\n" + t for [i, j, t] in flow.text["expected"]), flush=True)
         print("".join("\n" + t for [i, j, t] in flow.text["incoming"]), flush=True)
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('kind', default='')
-@click.option('-j', '--json', is_flag=True, default=False, show_default=True,
-              help='Output JSON objects with detailed information, unless the --text option is used.')
-@click.option('-t', '--text', is_flag=True, default=False, show_default=True,
+@click.option('-l', '--line', 'mode', flag_value='line', default='yes', show_default=True,
+              help='Output the events in a line-oriented format, where the difference of timestamps classifies the text.')
+@click.option('-j', '--json', 'mode', flag_value='json',
+              help='Output JSON objects with detailed information about the data, flow, and text.')
+@click.option('-t', '--text', 'mode', flag_value='text',
               help='Output the resulting "complete", "expected", "incoming" text, delimited by blank lines.')
-def main(kind, json, text):
+def main(mode):
     """
     Turn data from ASR into text for NMT. Events are classified sentences
     rather than text chunks evolving in time and disturbing the flow.
-
-    If not empty, KIND is used to name the events being emitted in the JSON
-    format. The KIND is empty by default.
     """
-    opts['-j'] = json
-    opts['-t'] = text
+    opts['-' + mode[0]] = mode
     try:
-        events(kind)
+        events()
     except BrokenPipeError:
         sys.stderr.close()
 
