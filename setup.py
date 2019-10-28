@@ -9,9 +9,9 @@ setup(
     author_email='otakar-smrz users.sf.net',
     py_modules=['events', 'client', 'server', 'group'],
     include_package_data=True,
-    package_data=[
+    package_data={
         '': ['*.html', '*.md']
-        ],
+    },
     install_requires=[
         'click',
         'flask',
