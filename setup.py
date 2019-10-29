@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='online-text-flow',
@@ -7,11 +7,10 @@ setup(
     license='GPL',
     author='Otakar Smrz',
     author_email='otakar-smrz users.sf.net',
-    py_modules=['events', 'client', 'server', 'group'],
+    namespace_packages=['elitr'],
+    packages=find_packages(),
     include_package_data=True,
-    package_data={
-        '': ['*.html', '*.md']
-    },
+    zip_safe=False,
     install_requires=[
         'click',
         'flask',
@@ -19,10 +18,10 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'online-text-flow=group:cli',
-            'online-text-flow-events=events:main',
-            'online-text-flow-client=client:main',
-            'online-text-flow-server=server:main',
+            'online-text-flow=elitr.onlinetextflow:main',
+            'online-text-flow-events=elitr.onlinetextflow.events:main',
+            'online-text-flow-client=elitr.onlinetextflow.client:main',
+            'online-text-flow-server=elitr.onlinetextflow.server:main',
         ],
     },
 )

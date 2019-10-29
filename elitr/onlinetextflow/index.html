@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<title>ELITR Online Text Flow</title>
+
+<style>
+  .row {
+    display: flex;
+  }
+
+  .column {
+    flex: 1 1 50%;
+  }
+
+  .complete {
+    color: black;
+  }
+
+  .expected {
+    color: gray;
+  }
+
+  .incoming {
+    color: silver;
+  }
+
+  .flow {
+    display: table;
+    vertical-align: top;
+  }
+
+  .data {
+    display: table-row;
+  }
+
+  .item {
+    display: table-cell;
+    padding-right: 10px;
+  }
+
+  .complete .idx {
+    color: silver;
+  }
+
+  .expected .idx {
+    color: orange;
+  }
+
+  .incoming .idx {
+    color: red;
+  }
+
+  .idx {
+    text-align: right;
+  }
+
+  .idx:after {
+    content: ".";
+  }
+
+  .fst, .snd {
+    display: none;
+  }
+
+  .trd {
+  }
+
+  h1 {
+    text-transform: uppercase;
+  }
+</style>
+
+<div id="event-flows" class="row"></div>
+
+<script>
+  var flow = {"en": '', "de": '', "cs": ''}
+
+  var code = ''
+  for (kind in flow) {
+    code += '<div class="column ' + kind + '">' +
+            '<h1>' + kind + '</h1>' +
+            '<div id="flow-' + kind + '">' +
+            '<p><em>no events yet</em></p>' +
+            '</div>' +
+            '</div>';
+  }
+  document.getElementById("event-flows").innerHTML = code;
+
+  var events = new EventSource("{{ data }}");
+
+  var listen = function (kind) {
+    var elem = document.getElementById("flow-" + kind);
+    return function (event) {
+      var json = JSON.parse(event.data);
+      show(kind, elem, json);
+    }
+  }
+
+  var html = function (data) {
+    var zero = data[0] + '' // need the string not promise
+    zero = zero.substring(0, zero.length - 2);
+    return '<div class="idx item">' + zero    + '</div>' +
+           '<div class="fst item">' + data[0] + '</div>' +
+           '<div class="snd item">' + data[1] + '</div>' +
+           '<div class="trd item">' + data[2] + '</div>';
+  }
+
+  var show = function (kind, elem, json) {
+    var code = '<div class="events flow">';
+    for (data of json.text.complete) {
+      flow[kind] +=
+              '<div class="complete data">' + html(data) + '</div>';
+    }
+    code += flow[kind];
+    for (data of json.text.expected) {
+      code += '<div class="expected data">' + html(data) + '</div>';
+    }
+    for (data of json.text.incoming) {
+      code += '<div class="incoming data">' + html(data) + '</div>';
+    }
+    code += '</div>';
+    elem.innerHTML = code;
+  }
+
+  events.onmessage = function (event) {
+     for (kind in flow) {
+       listen(kind)(event);
+     }
+  }
+  for (kind in flow) {
+    events.addEventListener(kind, listen(kind));
+  }
+</script>

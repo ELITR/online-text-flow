@@ -16,7 +16,7 @@ import os
 import click
 
 
-app = flask.Flask(__name__, template_folder=".")
+app = flask.Flask(__name__, template_folder='.')
 
 app.secret_key = os.urandom(12)
 
