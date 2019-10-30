@@ -38,7 +38,7 @@ class Flow():
         self.__text__()
 
     def __flow__(self):
-        data = self.data
+        data = self.data.copy()
         flow = self.flow
         if not flow:
             self.flow = [data]
@@ -135,8 +135,7 @@ def events():
                 if flow.text["complete"]:
                     print("\n".join(t for [i, j, t] in flow.text["complete"]), flush=True)
             elif '-j' in opts:
-                print(json.dumps({'data': flow.data, 'flow': flow.flow, 'text': flow.text},
-                                 sort_keys=True), flush=True)
+                print(json.dumps(flow.__dict__, sort_keys=True), flush=True)
             else:
                 for key in ["complete", "expected", "incoming"]:
                     for [i, j, t] in flow.text[key]:
@@ -147,18 +146,22 @@ def events():
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('-l', '--line', 'mode', flag_value='line', default='yes', show_default=True,
-              help='Output the events in a line-oriented format, where the difference of timestamps classifies the text.')
-@click.option('-j', '--json', 'mode', flag_value='json',
-              help='Output JSON objects with detailed information about the data, flow, and text.')
-@click.option('-t', '--text', 'mode', flag_value='text',
-              help='Output the resulting "complete", "expected", "incoming" text, delimited by blank lines.')
+@click.option('-l', '--line', 'mode', flag_value='-l', default='--line', show_default=True,
+              help='Output the events as lines of artificial timestamps and text, '
+              'where specific differences in timestamps group the events and '
+              'classify the text as "complete", "expected", and "incoming".')
+@click.option('-j', '--json', 'mode', flag_value='-j',
+              help='Output the events as JSON objects with detailed information '
+              'about the data, the flow, the text, and other indicators.')
+@click.option('-t', '--text', 'mode', flag_value='-t',
+              help='Output the resulting text split into classes by empty lines.')
 def main(mode):
     """
-    Turn data from ASR into text for NMT. Events are classified sentences
-    rather than text chunks evolving in time and disturbing the flow.
+    Turn data from speech recognition into text for machine translation. The
+    emitted events are classified sentences rather than text chunks evolving
+    in time and disturbing the flow. The complete text is emitted just once.
     """
-    opts['-' + mode[0]] = mode
+    opts[mode] = mode
     try:
         events()
     except BrokenPipeError:

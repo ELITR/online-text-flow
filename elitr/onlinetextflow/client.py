@@ -20,11 +20,11 @@ code = {100: "complete", 10: "expected", 1: "incoming"}
 
 opts = {}
 
+POST = {}
+
 
 def empty(kind='', uniq=1):
-    event = {'data': {'data': [],
-                      'flow': [],
-                      'text': {"complete": [],
+    event = {'data': {'text': {"complete": [],
                                "expected": [],
                                "incoming": []}}}
     if kind:
@@ -34,13 +34,20 @@ def empty(kind='', uniq=1):
 
 
 def post(event, url):
+    global POST
     kind = event['event'] if 'event' in event else ''
     uniq = event['id']
     event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
-        reply = requests.post(url + '/post', json=event)
-        if opts['-v']:
-            print(reply.text, flush=True)
+        if not opts['-f'] and 'data' in POST and POST['data'] == event['data']:
+            if opts['-v']:
+                event['data'] = {}
+                print(json.dumps(event), flush=True)
+        else:
+            POST = event
+            resp = requests.post(url + '/post', json=event)
+            if opts['-v']:
+                print(resp.text, flush=True)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
@@ -49,21 +56,30 @@ def post(event, url):
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('kind', default='')
 @click.argument('url', default='http://127.0.0.1:5000')
+@click.option('-f', '--force', is_flag=True, default=False, show_default=True,
+              help="Force the post even if the event's data have not changed.")
 @click.option('-v', '--verbose', is_flag=True, default=False, show_default=True,
-              help='Print the response from the server.')
-def main(kind, url, verbose):
+              help="Print the JSON response from the server and the event's "
+              'metadata if its data have not changed and were not forced.')
+def main(kind, url, force, verbose):
     """
     Post data from the standard input as the KIND of events to the URL/post
-    endpoint. KIND is empty and URL is http://127.0.0.1:5000 by default.
+    endpoint. KIND is empty and URL is http://127.0.0.1:5000 by default. Use
+    the --force option to post even if the event's data have not changed.
 
-    Data should conform to the output of online-text-flow-events.py. If a line
-    contains two integers of a given semantics and then some text, an event is
-    being built from the consequtive lines until considered complete, and then
-    posted as KIND. If the data on a line is a JSON object, the event being
-    built is closed and posted, then the data object is posted as an event of
-    its own. Lines that do not fit the semantics are ignored. They do not
-    close the event in progress and are printed to the standard error.
+    If an input line contains two integers as artificial timestamps and then
+    some text, an event is being built from the consecutive lines while the
+    timestamps increase. The specific difference of timestamps on one line
+    classifies the text as "complete", "expected", "incoming", or ignored.
+
+    If the data on a line is a JSON object, the event being built is posted,
+    then the data object is decorated and posted as an event of its own.
+
+    Lines that do not fit the logic are ignored. They do not emit the event in
+    progress and are printed to the standard error. Use the --verbose option
+    to discover the implementation details and the semantics of the events.
     """
+    opts['-f'] = force
     opts['-v'] = verbose
     kind = re.sub('\W', '-', " ".join(kind.split()))
     event = empty(kind)
