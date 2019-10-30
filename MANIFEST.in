@@ -1,3 +1,1 @@
-include elitr/onlinetextflow/index.html
-include elitr/onlinetextflow/login.html
-global-exclude *.pyc
+include elitr/onlinetextflow/*.html
