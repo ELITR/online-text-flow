@@ -74,14 +74,19 @@ def index():
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--host', default='127.0.0.1', show_default=True)
-@click.option('--port', default='5000', show_default=True)
-@click.option('--debug', default=True, show_default=True)
-@click.option('--threaded', default=True, show_default=True)
-@click.option('--ssl_context', default=None, show_default=True)
+@click.option('--port', default=5000, show_default=True)
+@click.option('--debug / --no-debug', default=False, show_default=True)
+@click.option('--threaded / --no-threaded', default=True, show_default=True)
+@click.option('--ssl_context', default=None, show_default=True,
+              help='Secure with HTTPS if needed.  [TEXT: adhoc]')
 def main(**opts):
     """
-    Run the app. Post events at /post and listen to their stream at /data.
+    Run the web app to merge, stream, and display online text flow events.
+    Post events at /post and listen to their stream at /data. Browse at /.
+
+    http://github.com/ELITR/online-text-flow
     """
+    print(' * Opts:', opts)
     app.run(**opts)
 
 
