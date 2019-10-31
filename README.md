@@ -1,7 +1,7 @@
 # online-text-flow
 Online event streaming to improve data and text flows
 
-This project is integrated with Flask(https://flask.palletsprojects.com), Click(https://click.palletsprojects.com), Requests(https://requests.readthedocs.io) and Setuptools(https://setuptools.readthedocs.io). Start with:
+This project is integrated with [Flask](https://flask.palletsprojects.com), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
 
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow
@@ -89,7 +89,7 @@ You may try running the modules as executables, or importing them from your code
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-### online-text-flow / __init__.py
+### online-text-flow / \_\_init\_\_.py
 
     Usage: online-text-flow [OPTIONS] COMMAND [ARGS]...
     
