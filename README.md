@@ -106,7 +106,7 @@ You may try running the modules as executables, or importing them from your code
       events  Turn data from speech recognition into text for machine...
       server  Run the web app to merge, stream, and display online text flow...
 
-### online-text-flow events / [events.py]](elitr/onlinetextflow/events.py)
+### online-text-flow events / [events.py](elitr/onlinetextflow/events.py)
 
     Usage: online-text-flow events [OPTIONS]
     
@@ -124,7 +124,7 @@ You may try running the modules as executables, or importing them from your code
       -t, --text  Output the resulting text split into classes by empty lines.
       -h, --help  Show this message and exit.
 
-### online-text-flow client / [client.py]](elitr/onlinetextflow/client.py)
+### online-text-flow client / [client.py](elitr/onlinetextflow/client.py)
 
     Usage: online-text-flow client [OPTIONS] [KIND] [URL]
     
@@ -152,7 +152,7 @@ You may try running the modules as executables, or importing them from your code
                      [default: False]
       -h, --help     Show this message and exit.
 
-### online-text-flow server / [server.py]](elitr/onlinetextflow/server.py)
+### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
 
     Usage: online-text-flow server [OPTIONS]
     
