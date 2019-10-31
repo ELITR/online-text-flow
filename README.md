@@ -89,7 +89,7 @@ You may try running the modules as executables, or importing them from your code
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-### online-text-flow / \_\_init\_\_.py
+### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
     Usage: online-text-flow [OPTIONS] COMMAND [ARGS]...
     
@@ -106,7 +106,7 @@ You may try running the modules as executables, or importing them from your code
       events  Turn data from speech recognition into text for machine...
       server  Run the web app to merge, stream, and display online text flow...
 
-### online-text-flow events / events.py
+### online-text-flow events / [events.py]](elitr/onlinetextflow/events.py)
 
     Usage: online-text-flow events [OPTIONS]
     
@@ -124,7 +124,7 @@ You may try running the modules as executables, or importing them from your code
       -t, --text  Output the resulting text split into classes by empty lines.
       -h, --help  Show this message and exit.
 
-### online-text-flow client / client.py
+### online-text-flow client / [client.py]](elitr/onlinetextflow/client.py)
 
     Usage: online-text-flow client [OPTIONS] [KIND] [URL]
     
@@ -152,7 +152,7 @@ You may try running the modules as executables, or importing them from your code
                      [default: False]
       -h, --help     Show this message and exit.
 
-### online-text-flow server / server.py
+### online-text-flow server / [server.py]](elitr/onlinetextflow/server.py)
 
     Usage: online-text-flow server [OPTIONS]
     
@@ -169,10 +169,12 @@ You may try running the modules as executables, or importing them from your code
       --ssl_context TEXT          Secure with HTTPS if needed.  [TEXT: adhoc]
       -h, --help                  Show this message and exit.
 
-### elitr/onlinetextflow/index.html
+### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
 
-- Unnamed events are displayed in all streams. Reload to clear the history.
+Customize `var flow = {"en": '', "de": '', "cs": ''}` if other kinds or names of event streams are needed. Unnamed events are displayed in all streams. Reload the `/` endpoint to clear the `flow` history of complete text in the browser.
 
-### elitr/onlinetextflow/login.html
+Further subtitling viewport can be probably implemented using the CSS `overflow` and the JQuery `animate` features.
 
-- Includes the flashing of login and logout messages as provided by Flask.
+### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
+
+Includes the flashing of login and logout messages as provided by Flask. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
