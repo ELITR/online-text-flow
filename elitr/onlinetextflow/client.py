@@ -47,7 +47,8 @@ def post(event, url):
             POST = event
             resp = requests.post(url + '/post', json=event)
             if opts['-v']:
-                print(resp.text, flush=True)
+                event['code'] = resp.status_code
+                print(json.dumps(event), flush=True)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
@@ -77,7 +78,7 @@ def main(kind, url, force, verbose):
 
     Lines that do not fit the logic are ignored. They do not emit the event in
     progress and are printed to the standard error. Use the --verbose option
-    to discover the implementation details and the semantics of the events.
+    to observe the implementation details and the semantics of the events.
     """
     opts['-f'] = force
     opts['-v'] = verbose

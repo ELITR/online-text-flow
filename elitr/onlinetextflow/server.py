@@ -18,7 +18,7 @@ import click
 
 app = flask.Flask(__name__, template_folder='.')
 
-app.secret_key = os.urandom(12)
+app.secret_key = os.urandom(16)
 
 DATA = {'id': ''}
 
@@ -37,7 +37,7 @@ def events():
 def post():
     global DATA
     DATA = request.json
-    return json.jsonify(DATA)
+    return json.jsonify({})
 
 
 @app.route('/data')
