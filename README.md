@@ -4,23 +4,26 @@ Online event streaming to improve data and text flows
 This project is integrated with [Flask](https://flask.palletsprojects.com), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
 
     git clone https://github.com/ELITR/online-text-flow.git
-    cd online-text-flow
-    git pull
+    cd online-text-flow/
     
-    python3 setup.py develop --user    # either
-    pip3 install --editable --user .   # or
+    python3 setup.py develop --user     # either
+    pip3 install --editable --user .    # or
     
     export PATH=~/.local/bin:$PATH
 
-    cd
-    
+    git pull        # no need to reinstall due 
+                    # to develop/--editable
+
+You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may possibly introduce some `alias` for convenience.
+
     online-text-flow
     online-text-flow events -h
     online-text-flow client -h
     online-text-flow server -h
     
-    git pull        # no need to reinstall due 
-                    # to develop/--editable
+    online-text-flow-events -h
+    online-text-flow-client -h
+    online-text-flow-server -h
 
 ## Quick Tips
 
@@ -65,26 +68,26 @@ View the event stream of the data and post to the endpoint:
 
 The code is organized into a Python package of the following structure:
 
-    online-text-flow
-    | setup.py
-    | MANIFEST.in
-    | README.md
-    | data
-    | | en.txt
-    | \ cs.txt
-    \ elitr
-      | __init__.py
-      \ onlinetextflow
-        | __init__.py
-        | events.py
-        | client.py
-        | server.py
-        | index.html
-        \ login.html
+    online-text-flow/
+        setup.py
+        MANIFEST.in
+        README.md
+        data/
+            en.txt
+            cs.txt
+        elitr/
+            __init__.py
+            onlinetextflow/
+                __init__.py
+                events.py
+                client.py
+                server.py
+                index.html
+                login.html
 
-The `setup.py` defines a namespace package `elitr` where independent project distributions can be plugged in. Reuse the exact same `elitr/__init__.py` and similar `setup.py` in your plug-in project.
+The [`setup.py`](setup.py) defines a namespace package `elitr` where independent project distributions can be plugged in. Reuse the exact same [`elitr/__init__.py`](elitr/__init__.py) and similar [`setup.py`](setup.py) in your plug-in project.
 
-You may try running the modules as executables, or importing them from your code:
+Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scripts, you may try running the modules as executables, or importing them from your code:
 
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
@@ -173,7 +176,7 @@ You may try running the modules as executables, or importing them from your code
 
 Customize `var flow = {"en": '', "de": '', "cs": ''}` if other kinds or names of event streams are needed. Unnamed events are displayed in all streams. Reload the `/` endpoint to clear the `flow` history of complete text in the browser.
 
-Further subtitling viewport can be probably implemented using the CSS `overflow` and the JQuery `animate` features.
+Further subtitling viewport can be probably implemented using the CSS `overflow` and the jQuery `animate` features.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
