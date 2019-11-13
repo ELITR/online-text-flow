@@ -1,6 +1,10 @@
 # online-text-flow
 Online event streaming to improve data and text flows
 
+[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example)
+
+## Setup
+
 This project is integrated with [Flask](https://flask.palletsprojects.com), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
 
     git clone https://github.com/ELITR/online-text-flow.git
@@ -14,7 +18,7 @@ This project is integrated with [Flask](https://flask.palletsprojects.com), [Cli
     git pull        # no need to reinstall due 
                     # to develop/--editable
 
-You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may possibly introduce some `alias` for convenience.
+You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience.
 
     online-text-flow
     online-text-flow events -h
@@ -181,3 +185,102 @@ Further subtitling viewport can be probably implemented using the CSS `overflow`
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
 Includes the flashing of login and logout messages as provided by Flask. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
+
+## Example
+
+Let us see how the speech recognition output is transformed into the machine translation input using the text flow [events](#online-text-flow-events--eventspy). First, let us get familiar with the first 30 lines of [`data/en.txt`](data/en.txt#L1):
+```
+130 480 You... 
+130 840 You should... 
+130 1200 You should... 
+130 2280 You should... 
+130 10200 You should... 
+130 10560 You should... 
+130 13080 You should... 
+130 14160 You should thank. 
+130 16680 You should. Thank there have... 
+130 17040 You should. Thank there have been... 
+130 17400 You should. Thank there have been many... 
+130 17760 You should. Thank there have been many revel... 
+130 18120 You should. Thank there have been many revolution. 
+130 18480 You should. Thank there have been many revolutions... 
+130 18840 You should. Thank there have been many revolutions over the... 
+130 19560 You should. Thank there have been many revolutions over the last century. 
+130 20280 You should. Thank there have been many revolutions over the last century. But perhaps... 
+130 20640 You should. Thank there have been many revolutions over the last century. But perhaps none... 
+130 21000 You should. Thank there have been many revolutions over the last century. But perhaps none as... 
+130 21180 You should. Thank there have been many revolutions over the last century, but perhaps none as sick... 
+130 21720 You should. Thank there have been many revolutions over the last century, but perhaps none as significant... 
+130 22080 You should. Thank there have been many revolutions over the last century, but perhaps none as significant as... 
+130 22440 You should. Thank there have been many revolutions over the last century. But perhaps none as significant as the law... 
+130 22700 You should. Thank there have been many revolutions over the last century. But perhaps none as significant as the large... 
+130 3655 You should. Thank 
+3655 23150 there have been many revolutions over the last century, but perhaps none as significant as the longevity red... 
+3655 4759 there 
+4759 23520 have been many revolutions over the last century, but perhaps none as significant as the longevity revolution. 
+4759 23750 have been many revolutions over the last century, but perhaps none as significant as the longevity revolution. 
+4759 24600 have been many revolutions over the last century, but perhaps none as significant as the longevity revolution. We... 
+```
+
+The first three data lines emit three text flow events, one to one. The recognized text is still "incoming" and there are no "complete" or "expected" sentences yet:
+```json
+> head -n 3 data/en.txt | online-text-flow events
+100 101 You...
+100 101 You should...
+100 101 You should...
+```
+```json
+> head -n 3 data/en.txt | online-text-flow events --json | jq -c '.text'`
+{"complete":[],"expected":[],"incoming":[[100,101,"You..."]]}
+{"complete":[],"expected":[],"incoming":[[100,101,"You should..."]]}
+{"complete":[],"expected":[],"incoming":[[100,101,"You should..."]]}
+```
+
+Interesting things start to happen with lines [7, 8 ,9](data/en.txt#L7):
+```json
+> head -n 9 data/en.txt | online-text-flow events --json | tail -n +7 | jq -c '.text'
+{"complete":[],"expected":[],"incoming":[[100,101,"You should..."]]}
+{"complete":[],"expected":[[100,110,"You should thank."]],"incoming":[]}
+{"complete":[],"expected":[[100,110,"You should."]],"incoming":[[200,201,"Thank there have..."]]}
+```
+The corresponding output in the default `--line` format of events produces multiple lines, with the status of text encoded in the [artificial timestamps](elitr/onlinetextflow/client.py) as discussed above with [events](#online-text-flow-events--eventspy) and [client](#online-text-flow-client--clientpy):
+```json
+> head -n 9 data/en.txt | online-text-flow events | tail -n +7
+100 101 You should...
+100 110 You should thank.
+100 110 You should.
+200 201 Thank there have...
+```
+
+Around line [25](data/en.txt#L24), we can observe the first complete sentence to be emited, and the "expected" sentence changing back into the "incoming" as the comma `, but` is reintroduced instead of the period `. But`:
+```json
+> head -n 26 data/en.txt | online-text-flow events --json | tail -n 3 | jq -c '.text' 
+{"complete":[],"expected":[[100,110,"You should."],[200,210,"Thank there have been many revolutions over the last century."]],"incoming":[[300,301,"But perhaps none as significant as the large..."]]}
+{"complete":[[100,200,"You should."]],"expected":[[200,210,"Thank there have been many revolutions over the last century."]],"incoming":[[300,301,"But perhaps none as significant as the large..."]]}
+{"complete":[],"expected":[],"incoming":[[200,201,"Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity red..."]]}
+```
+The corresponding `--line` format of the above events:
+```json
+> head -n 26 data/en.txt | online-text-flow events --json | tail -n 3 | jq -cr '.text[][]|@tsv' | tr '\t' ' '
+100 110 You should.
+200 210 Thank there have been many revolutions over the last century.
+300 301 But perhaps none as significant as the large...
+100 200 You should.
+200 210 Thank there have been many revolutions over the last century.
+300 301 But perhaps none as significant as the large...
+200 201 Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity red...
+```
+
+Eventually, with line [30](data/en.txt#L30), we get the following event, and can overview the "complete", "expected", and "incoming" text for the whole input as follows:
+```json
+> head -n 30 data/en.txt | online-text-flow events --json | tail -n 1 | jq -c '.text' 
+{"complete":[],"expected":[[200,210,"Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity revolution."]],"incoming":[[300,301,"We..."]]}
+```
+```json
+> head -n 30 data/en.txt | online-text-flow events --text
+You should.
+
+Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity revolution.
+
+We...
+```
