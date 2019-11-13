@@ -222,7 +222,7 @@ Let us see how the speech recognition output is transformed into the machine tra
 4759 24600 have been many revolutions over the last century, but perhaps none as significant as the longevity revolution. We... 
 ```
 
-The first three data lines emit three text flow events, one to one. The recognized text is still "incoming" and there are no "complete" or "expected" sentences yet:
+The first three data lines emit three text flow events, one input line to one output event. The recognized text is still "incoming" and there are no "complete" or "expected" sentences yet:
 ```json
 > head -n 3 data/en.txt | online-text-flow events
 100 101 You...
@@ -252,7 +252,7 @@ The corresponding output in the default `--line` format of events produces multi
 200 201 Thank there have...
 ```
 
-Around line [25](data/en.txt#L24), we can observe the first complete sentence to be emited, and the "expected" sentence changing back into the "incoming" as the comma `, but` is reintroduced instead of the period `. But`:
+Around line [25](data/en.txt#L24), we can observe the first "complete" sentence to be emited, and the "expected" sentence changing back into the "incoming" as the comma `century, but` is reintroduced instead of the period `century. But`:
 ```json
 > head -n 26 data/en.txt | online-text-flow events --json | tail -n 3 | jq -c '.text' 
 {"complete":[],"expected":[[100,110,"You should."],[200,210,"Thank there have been many revolutions over the last century."]],"incoming":[[300,301,"But perhaps none as significant as the large..."]]}
@@ -271,7 +271,7 @@ The corresponding `--line` format of the above events:
 200 201 Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity red...
 ```
 
-Eventually, with line [30](data/en.txt#L30), we get the following event, and can overview the "complete", "expected", and "incoming" text for the whole input as follows:
+Eventually, with line [30](data/en.txt#L30), we get the following event in `--json`, and can overview the "complete", "expected", and "incoming" text for the whole input using the `--text` option:
 ```json
 > head -n 30 data/en.txt | online-text-flow events --json | tail -n 1 | jq -c '.text' 
 {"complete":[],"expected":[[200,210,"Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity revolution."]],"incoming":[[300,301,"We..."]]}
