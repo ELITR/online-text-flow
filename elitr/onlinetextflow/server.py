@@ -9,10 +9,15 @@ __author__    = "Otakar Smrz"
 __email__     = "otakar-smrz users.sf.net"
 
 
+# https://github.com/singingwolfboy/flask-sse/issues/7
+# https://pgjones.gitlab.io/quart/broadcast_tutorial.html
+
+
 from flask import json, request, session
 
 import flask
 import os
+import queue
 import click
 
 
@@ -20,23 +25,25 @@ app = flask.Flask(__name__, template_folder='.')
 
 app.secret_key = os.urandom(16)
 
-DATA = {'id': ''}
+DATA = []
 
 
 def events():
-    uniq = ''
+    stream = queue.Queue()
+    DATA.append(stream)
     while True:
-        if not uniq == DATA['id']:
-            show = 'event: %s\n' % DATA['event'] if 'event' in DATA else ''
-            uniq = DATA['id']
-            data = json.dumps(DATA['data'])
-            yield '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
+        data = stream.get()
+        show = 'event: %s\n' % data['event'] if 'event' in data else ''
+        uniq = data['id']
+        data = json.dumps(data['data'])
+        yield '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
+    DATA.remove(stream)
 
 
 @app.route('/post', methods=['POST'])
 def post():
-    global DATA
-    DATA = request.json
+    for stream in DATA:
+        stream.put(request.json)
     return json.jsonify({})
 
 
