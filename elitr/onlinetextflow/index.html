@@ -5,10 +5,20 @@
 <style>
   .row {
     display: flex;
+    flex-direction: row;
   }
 
   .column {
     flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    //align-content: flex-end;
+  }
+
+  .events {
+    padding-bottom: 30px;
+    padding-right: 10px;
   }
 
   .complete {
@@ -25,7 +35,6 @@
 
   .flow {
     display: table;
-    vertical-align: top;
   }
 
   .data {
@@ -35,6 +44,7 @@
   .item {
     display: table-cell;
     padding-right: 10px;
+    vertical-align: top;
   }
 
   .complete .idx {
@@ -78,8 +88,10 @@
   for (kind in flow) {
     code += '<div class="column ' + kind + '">' +
             '<h1>' + kind + '</h1>' +
-            '<div id="flow-' + kind + '">' +
-            '<p><em>no events yet</em></p>' +
+            '<div class="events flow" id="flow-' + kind + '">' +
+            '<div class="complete"></div>' +
+            '<div class="expected"><em>no events yet</em></div>' +
+            '<div class="incoming"></div>' +
             '</div>' +
             '</div>';
   }
@@ -88,11 +100,36 @@
   var events = new EventSource("{{ data }}");
 
   var listen = function (kind) {
-    var elem = document.getElementById("flow-" + kind);
+    var root = document.getElementById("flow-" + kind);
     return function (event) {
       var json = JSON.parse(event.data);
-      show(kind, elem, json);
+
+      var elem = root.getElementsByClassName("complete")[0];
+      for (data of json.text.complete) {
+        elem.appendChild(node(data));
+      }
+
+      var elem = root.getElementsByClassName("expected")[0];
+      elem.innerHTML = '';
+      for (data of json.text.expected) {
+        elem.appendChild(node(data));
+      }
+
+      var elem = root.getElementsByClassName("incoming")[0];
+      elem.innerHTML = '';
+      for (data of json.text.incoming) {
+        elem.appendChild(node(data));
+      }
+
+      root.scrollIntoView(false);
     }
+  }
+
+  var node = function (data) {
+    var elem = document.createElement("div");
+    elem.className = "data";
+    elem.innerHTML = html(data);
+    return elem;
   }
 
   var html = function (data) {
@@ -101,24 +138,18 @@
     return '<div class="idx item">' + zero    + '</div>' +
            '<div class="fst item">' + data[0] + '</div>' +
            '<div class="snd item">' + data[1] + '</div>' +
-           '<div class="trd item">' + data[2] + '</div>';
+           '<div onclick="popup(this)"' +
+               ' class="trd item">' + data[2] + '</div>';
   }
 
-  var show = function (kind, elem, json) {
-    var code = '<div class="events flow">';
-    for (data of json.text.complete) {
-      flow[kind] +=
-              '<div class="complete data">' + html(data) + '</div>';
-    }
-    code += flow[kind];
-    for (data of json.text.expected) {
-      code += '<div class="expected data">' + html(data) + '</div>';
-    }
-    for (data of json.text.incoming) {
-      code += '<div class="incoming data">' + html(data) + '</div>';
-    }
-    code += '</div>';
-    elem.innerHTML = code;
+  var popup = function (elem) {
+    var wind = window.open("", "_blank");
+    var code = '<html><head></head><body>' +
+               elem.parentElement.innerHTML +
+               '</body></html>';
+    wind.document.open();
+    wind.document.write(code);
+    wind.document.close();
   }
 
   events.onmessage = function (event) {
