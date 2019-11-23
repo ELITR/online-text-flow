@@ -30,14 +30,16 @@ DATA = []
 
 def events():
     stream = queue.Queue()
-    DATA.append(stream)
-    while True:
-        data = stream.get()
-        show = 'event: %s\n' % data['event'] if 'event' in data else ''
-        uniq = data['id']
-        data = json.dumps(data['data'])
-        yield '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
-    DATA.remove(stream)
+    try:
+        DATA.append(stream)
+        while True:
+            data = stream.get()
+            show = 'event: %s\n' % data['event'] if 'event' in data else ''
+            uniq = data['id']
+            data = json.dumps(data['data'])
+            yield '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
+    except:
+        DATA.remove(stream)
 
 
 @app.route('/post', methods=['POST'])
