@@ -84,10 +84,10 @@
 <div id="event-flows" class="row"></div>
 
 <script>
-  var flow = {"en": '', "de": '', "cs": ''}
+  var show = new Set({{ show | tojson }})
 
   var code = ''
-  for (kind in flow) {
+  for (kind of show) {
     code += '<div class="column ' + kind + '">' +
             '<h1>' + kind + '</h1>' +
             '<div class="events flow" id="flow-' + kind + '">' +
@@ -155,11 +155,11 @@
   }
 
   events.onmessage = function (event) {
-     for (kind in flow) {
+     for (kind of show) {
        listen(kind)(event);
      }
   }
-  for (kind in flow) {
+  for (kind of show) {
     events.addEventListener(kind, listen(kind));
   }
 </script>
