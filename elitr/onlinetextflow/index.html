@@ -13,10 +13,6 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-  }
-
-  .events {
-    padding-bottom: 30px;
     padding-right: 10px;
   }
 
@@ -33,6 +29,10 @@
   .incoming {
     display: table-row-group;
     color: silver;
+  }
+
+  .flexible {
+    height: 200px;
   }
 
   .flow {
@@ -81,51 +81,38 @@
   }
 </style>
 
-<div id="event-flows" class="row"></div>
+<div id="content" class="row"></div>
 
 <script>
-  var show = new Set({{ show | tojson }})
+  var show = new Set({{ show | tojson }});
 
-  var code = ''
-  for (kind of show) {
+  var code = '';
+  for (let kind of show) {
     code += '<div class="column ' + kind + '">' +
             '<h1>' + kind + '</h1>' +
-            '<div class="events flow" id="flow-' + kind + '">' +
-            '<div class="complete"></div>' +
-            '<div class="expected"><em>no events yet</em></div>' +
-            '<div class="incoming"></div>' +
+            '<div class="events flow">' +
+            '<div class="complete" id="complete-' + kind + '"></div>' +
+            '<div class="expected" id="expected-' + kind + '">' +
+            '<em>no events yet</em></div>' +
+            '<div class="incoming" id="incoming-' + kind + '"></div>' +
+            '<div class="flexible" id="flexible-' + kind + '"></div>' +
             '</div>' +
             '</div>';
   }
-  document.getElementById("event-flows").innerHTML = code;
+  document.getElementById("content").innerHTML = code;
+
+  var scroll = true;
+  var viewer = new IntersectionObserver(function (ents) {
+      scroll = ents.some(ent => ent.isIntersecting);
+    }, {threshold: [0.0]});
+  for (let elem of document.getElementsByClassName("expected")) {
+    viewer.observe(elem);
+  }
+  for (let elem of document.getElementsByClassName("incoming")) {
+    viewer.observe(elem);
+  }
 
   var events = new EventSource("{{ data }}");
-
-  var listen = function (kind) {
-    var root = document.getElementById("flow-" + kind);
-    return function (event) {
-      var json = JSON.parse(event.data);
-
-      var elem = root.getElementsByClassName("complete")[0];
-      for (data of json.text.complete) {
-        elem.appendChild(node(data));
-      }
-
-      var elem = root.getElementsByClassName("expected")[0];
-      elem.innerHTML = '';
-      for (data of json.text.expected) {
-        elem.appendChild(node(data));
-      }
-
-      var elem = root.getElementsByClassName("incoming")[0];
-      elem.innerHTML = '';
-      for (data of json.text.incoming) {
-        elem.appendChild(node(data));
-      }
-
-      root.scrollIntoView(false);
-    }
-  }
 
   var node = function (data) {
     var elem = document.createElement("div");
@@ -154,12 +141,57 @@
     wind.document.close();
   }
 
-  events.onmessage = function (event) {
-     for (kind of show) {
-       listen(kind)(event);
-     }
+  var adjust = function (expected, incoming, flexible, height) {
+      var fill = expected.offsetHeight + incoming.offsetHeight;
+      var high = (height > fill) ? (height - fill) : 0;
+      flexible.style.height = high + "px";
   }
-  for (kind of show) {
-    events.addEventListener(kind, listen(kind));
+
+  var listen = {};
+
+  for (let kind of show) {
+
+    let complete = document.getElementById("complete-" + kind);
+    let expected = document.getElementById("expected-" + kind);
+    let incoming = document.getElementById("incoming-" + kind);
+    let flexible = document.getElementById("flexible-" + kind);
+
+    let height = parseInt(window.getComputedStyle(flexible)
+                                .getPropertyValue("height"));
+
+    adjust(expected, incoming, flexible, height);
+
+    listen[kind] = function (event) {
+
+      var json = JSON.parse(event.data);
+
+      for (let data of json.text.complete) {
+        complete.appendChild(node(data));
+      }
+
+      expected.innerHTML = '';
+      for (let data of json.text.expected) {
+        expected.appendChild(node(data));
+      }
+
+      incoming.innerHTML = '';
+      for (let data of json.text.incoming) {
+        incoming.appendChild(node(data));
+      }
+
+      adjust(expected, incoming, flexible, height);
+
+      if (scroll) {
+        flexible.scrollIntoView(false);
+      }
+    }
+
+    events.addEventListener(kind, listen[kind]);
+  }
+
+  events.onmessage = function (event) {
+    for (let kind of show) {
+      listen[kind](event);
+    }
   }
 </script>
