@@ -5,11 +5,14 @@
 <style>
   .row {
     display: flex;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: space-evenly;
   }
 
   .column {
-    flex: 0 0 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .flash {
@@ -20,6 +23,10 @@
 
   a {
     text-decoration: none;
+  }
+
+  img {
+    display: block;
   }
 </style>
 
@@ -37,14 +44,32 @@
 
 <div class="row">
   <div class="column">
-    <h1>ELITR <a href="http://github.com/ELITR/online-text-flow">Online Text Flow</a></h1>
-    <div>
-      <form action="/login" method="POST">
+    <h1>ELITR <a href="https://github.com/ELITR/online-text-flow">Online Text Flow</a></h1>
+    <form action="/login" method="POST">
+      <div>
         <input type="username" name="user" placeholder="username">
         <input type="password" name="pass" placeholder="password">
         <input type="submit" value="Log In">
-      </form>
-    </div>
+      </div>
+      <!--
+      <div>
+        <label><input type="checkbox" name="show" title="English" value="en">EN</label>
+        <label><input type="checkbox" name="show" title="French"  value="fr">FR</label>
+        <label><input type="checkbox" name="show" title="German"  value="de">DE</label>
+        <label><input type="checkbox" name="show" title="Italian" value="it">IT</label>
+        <label><input type="checkbox" name="show" title="Spanish" value="es">ES</label>
+        <label><input type="checkbox" name="show" title="Czech"   value="cs">CS</label>
+        <a href="/show/en/de/cs">EN/DE/CS</a>
+        <a href="/show/en/de">EN/DE</a>
+        <a href="/show/en/cs">EN/CS</a>
+      </div>
+      -->
+    </form>
+  </div>
+  <div class="column">
+    <a href="https://elitr.eu/">
+      <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="300" height="268">
+    </a>
   </div>
 </div>
 
