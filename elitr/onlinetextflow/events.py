@@ -122,9 +122,10 @@ def sentences(data, words=[]):
 
 def events():
     flow = Flow()
+    show = []
     for line in sys.stdin:
         try:
-            line = re.sub('<[^<>]*>', '', line)
+            line = re.sub('<[^<>]*>', ' ', line)
             data = line.split()
             data = [int(data[0]), int(data[1]), " ".join(data[2:])]
         except:
@@ -132,17 +133,23 @@ def events():
         else:
             flow.update(data)
             if '-t' in opts:
-                if flow.text["complete"]:
-                    print("\n".join(t for [i, j, t] in flow.text["complete"]), flush=True)
+                for [i, j, t] in flow.text["complete"]:
+                    print(t, flush=True)
             elif '-j' in opts:
                 print(json.dumps(flow.__dict__, sort_keys=True), flush=True)
             else:
+                text = []
                 for key in ["complete", "expected", "incoming"]:
                     for [i, j, t] in flow.text[key]:
-                        print("%d %d %s" % (i, j, t), flush=True)
+                        text.append("%d %d %s" % (i, j, t))
+                if not show == text:
+                    show = text
+                    for ijt in text:
+                        print(ijt, flush=True)
     if '-t' in opts:
-        print("".join("\n" + t for [i, j, t] in flow.text["expected"]), flush=True)
-        print("".join("\n" + t for [i, j, t] in flow.text["incoming"]), flush=True)
+        for key in ["expected", "incoming"]:
+            for [i, j, t] in flow.text[key]:
+                print(t, flush=True)
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
