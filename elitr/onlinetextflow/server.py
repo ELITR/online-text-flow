@@ -11,6 +11,8 @@ __email__     = "otakar-smrz users.sf.net"
 
 # https://github.com/singingwolfboy/flask-sse/issues/7
 # https://pgjones.gitlab.io/quart/broadcast_tutorial.html
+# https://gist.github.com/sebasmagri/a7cede3a708e2365b5a1
+# https://stackoverflow.com/questions/27890327/uwsgi-with-gevent-vs-threads
 
 
 from flask import json, request, session
@@ -24,6 +26,9 @@ import click
 app = flask.Flask(__name__, template_folder='.')
 
 app.secret_key = os.urandom(16)
+
+url = flask.url_for
+
 
 DATA = []
 
@@ -60,7 +65,7 @@ def data():
 def logout():
     session['auth'] = False
     flask.flash('You have been logged out')
-    return flask.redirect('/')
+    return flask.redirect(url('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -70,9 +75,9 @@ def login():
             session['auth'] = True
         else:
             flask.flash('The credentials are invalid')
-        return flask.redirect('/')
+        return flask.redirect(url('index'))
     else:
-        return flask.render_template('login.html')
+        return flask.render_template('login.html', login=url('login'))
 
 
 @app.route('/show/<path:path>')
@@ -80,22 +85,22 @@ def show(path):
     path = path.replace('/', ' ').split()
     if path:
         session['show'] = path
-    return flask.redirect('/')
+    return flask.redirect(url('index'))
 
 
 @app.route('/show/')
 def reset():
     if 'show' in session:
         del session['show']
-    return flask.redirect('/')
+    return flask.redirect(url('index'))
 
 
 @app.route('/')
 def index():
     if session.get('auth'):
-        return flask.render_template('index.html', data='/data', show=session.get('show', SHOW))
+        return flask.render_template('index.html', data=url('data'), show=session.get('show', SHOW))
     else:
-        return flask.redirect('/login')
+        return flask.redirect(url('login'))
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
