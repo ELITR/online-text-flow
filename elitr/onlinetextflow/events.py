@@ -59,6 +59,8 @@ class Flow():
             self.this = f
             if data[1] <= flow[-1][1]:
                 self.sure = f + 1
+            if data[0] >= flow[-1][1]:
+                self.sure = f
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
                 words = self.flow[f + 1][2].split()
                 count = len(data[2].split())
