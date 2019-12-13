@@ -142,12 +142,13 @@ def events():
                 for key in ["complete", "expected", "incoming"]:
                     for [i, j, t] in flow.text[key]:
                         text.append("%d %d %s" % (i, j, t))
-                if not show == text:
+                if len(show) < len(text) or not show[-len(text):] == text:
                     show = text
                     for ijt in text:
                         print(ijt, flush=True)
     if '-t' in opts:
         for key in ["expected", "incoming"]:
+            print('', flush=True)
             for [i, j, t] in flow.text[key]:
                 print(t, flush=True)
 
