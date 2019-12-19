@@ -131,7 +131,7 @@ def events():
             data = line.split()
             data = [int(data[0]), int(data[1]), " ".join(data[2:])]
         except:
-            print(line, file=sys.stderr)
+            print(line, file=sys.stderr, flush=True)
         else:
             flow.update(data)
             if '-t' in opts:
@@ -174,7 +174,7 @@ def main(mode):
     opts[mode] = mode
     try:
         events()
-    except BrokenPipeError:
+    except KeyboardInterrupt:
         sys.stderr.close()
 
 

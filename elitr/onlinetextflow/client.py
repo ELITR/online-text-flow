@@ -45,6 +45,25 @@ def post(event, url):
         return empty(kind, uniq)
 
 
+def client(kind, url):
+    kind = re.sub('\W', '-', " ".join(kind.split()))
+    event = empty(kind)
+    for line in sys.stdin:
+        if line[:1] == "{":
+            event = post(event, url)
+            event['data'] = json.loads(line)
+            event = post(event, url)
+        else:
+            data = line.split()
+            data = [int(data[0]), int(data[1]), " ".join(data[2:])]
+            text = event['data']['text']
+            text = text["complete"] + text["expected"] + text["incoming"]
+            if text and not text[-1][0] < data[0]:
+                event = post(event, url)
+            event['data']['text'][code[data[1] - data[0]]].append(data)
+    post(event, url)
+
+
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('kind', default='')
 @click.argument('url', default='http://127.0.0.1:5000')
@@ -68,25 +87,10 @@ def main(kind, url, verbose):
     to observe the implementation details and the semantics of the events.
     """
     opts['-v'] = verbose
-    kind = re.sub('\W', '-', " ".join(kind.split()))
-    event = empty(kind)
-    for line in sys.stdin:
-        try:
-            if line[:1] == "{":
-                event = post(event, url)
-                event['data'] = json.loads(line)
-                event = post(event, url)
-            else:
-                data = line.split()
-                data = [int(data[0]), int(data[1]), " ".join(data[2:])]
-                text = event['data']['text']
-                text = text["complete"] + text["expected"] + text["incoming"]
-                if text and not text[-1][0] < data[0]:
-                    event = post(event, url)
-                event['data']['text'][code[data[1] - data[0]]].append(data)
-        except:
-            print(line, file=sys.stderr, flush=True)
-    post(event, url)
+    try:
+        client(kind, url)
+    except KeyboardInterrupt:
+        sys.stderr.close()
 
 
 if __name__ == '__main__':
