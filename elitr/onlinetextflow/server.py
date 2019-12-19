@@ -16,10 +16,11 @@ __email__     = "otakar-smrz users.sf.net"
 
 
 from flask import json, request, session
+from gevent import monkey, queue
 
 import flask
+import gevent
 import os
-import queue
 import click
 
 
@@ -49,11 +50,18 @@ def events():
         DATA.remove(stream)
 
 
+@app.route('/stop', methods=['POST'])
+def stop():
+    for stream in DATA:
+        gevent.spawn(stream.put, StopIteration)
+    return json.jsonify({"stop": len(DATA)})
+
+
 @app.route('/post', methods=['POST'])
 def post():
     for stream in DATA:
-        stream.put(request.json)
-    return json.jsonify({})
+        gevent.spawn(stream.put, request.json)
+    return json.jsonify({"post": len(DATA)})
 
 
 @app.route('/data')
@@ -123,6 +131,7 @@ def main(kind, **opts):
         SHOW = list(kind)
     print(' * Opts:', opts)
     print(' * Show:', SHOW)
+    monkey.patch_all(ssl=False)
     app.run(**opts)
 
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='online-text-flow',
-    version='1.0',
+    version='1.1.1',
     url='http://github.com/ELITR/online-text-flow',
     license='GPL',
     author='Otakar Smrz',
@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'click',
         'flask',
+        'gevent',
         'requests',
     ],
     entry_points={
