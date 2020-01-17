@@ -2,7 +2,7 @@
 
 """Online Text Flow Server"""
 
-__copyright__ = "2019"
+__copyright__ = "2020"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
@@ -33,7 +33,7 @@ url = flask.url_for
 
 DATA = []
 
-SHOW = ['en', 'de', 'cs']
+MENU = ['en', 'de', 'cs']
 
 
 def events():
@@ -88,25 +88,10 @@ def login():
         return flask.render_template('login.html', login=url('login'))
 
 
-@app.route('/show/<path:path>')
-def show(path):
-    path = path.replace('/', ' ').split()
-    if path:
-        session['show'] = path
-    return flask.redirect(url('index'))
-
-
-@app.route('/show/')
-def reset():
-    if 'show' in session:
-        del session['show']
-    return flask.redirect(url('index'))
-
-
 @app.route('/')
 def index():
     if session.get('auth'):
-        return flask.render_template('index.html', data=url('data'), show=session.get('show', SHOW))
+        return flask.render_template('index.html', data=url('data'), menu=MENU)
     else:
         return flask.redirect(url('login'))
 
@@ -126,11 +111,11 @@ def main(kind, **opts):
 
     http://github.com/ELITR/online-text-flow
     """
-    global SHOW
+    global MENU
     if kind:
-        SHOW = list(kind)
+        MENU = list(kind)
     print(' * Opts:', opts)
-    print(' * Show:', SHOW)
+    print(' * Menu:', MENU)
     monkey.patch_all(ssl=False)
     app.run(**opts)
 

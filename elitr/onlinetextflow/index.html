@@ -16,6 +16,10 @@
     padding-right: 10px;
   }
 
+  .column.hide {
+    display: none;
+  }
+
   .complete {
     display: table-row-group;
     color: black;
@@ -32,7 +36,7 @@
   }
 
   .flexible {
-    height: 200px;
+    height: 300px;
   }
 
   .flow {
@@ -81,16 +85,71 @@
   h1 {
     text-transform: uppercase;
   }
+
+  a {
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    margin: 0px 0px 20px 0px;
+  }
+
+  body {
+    overflow-y: scroll;
+  }
+
+  .bar {
+    position: fixed;
+    right: 0px;
+    top: 5px;
+    width: 80px;
+    height: 400px;
+    // background-color: lightgray;
+  }
+
+  .bar button {
+    display: block;
+    width: 60px;
+    border: 1px solid dodgerblue;
+    border-radius: 0px;
+    margin: 5px 10px;
+    padding: 1px;
+    height: 30px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: bold;
+    position: relative;
+    text-transform: uppercase;
+    outline: none;
+    color: white;
+    background-color: dodgerblue;
+  }
+
+  .bar button.hide {
+    color: dodgerblue;
+    background-color: white;
+  }
+
+  #content {
+    padding-right: 80px;
+  }
 </style>
 
-<div id="content" class="row"></div>
+<div class="row" id="content"></div>
+<div class="bar">
+ <a href="https://elitr.eu/" target="_blank">
+   <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="75" height="67">
+ </a>
+ <div id="control"></div>
+</div>
 
 <script>
-  var show = new Set({{ show | tojson }});
+  var menu = new Set({{ menu | tojson }});
 
   var code = '';
-  for (let kind of show) {
-    code += '<div class="column ' + kind + '">' +
+  for (let kind of menu) {
+    code += '<div class="column ' + kind + '" id="column-' + kind + '">' +
             '<h1>' + kind + '</h1>' +
             '<div class="events flow">' +
             '<div class="complete" id="complete-' + kind + '"></div>' +
@@ -102,6 +161,13 @@
             '</div>';
   }
   document.getElementById("content").innerHTML = code;
+
+  var code = '';
+  for (let kind of menu) {
+    code += '<button onclick="toggle(this)" type="button" name="' + kind +
+                  '" id="button-' + kind + '">' + kind + '</button>';
+  }
+  document.getElementById("control").innerHTML = code;
 
   var scroll = true;
   var viewer = new IntersectionObserver(function (ents) {
@@ -135,9 +201,7 @@
 
   var popup = function (elem) {
     var wind = window.open("", "_blank");
-    var code = '<html><head></head><body>' +
-               elem.parentElement.innerHTML +
-               '</body></html>';
+    var code = '<!DOCTYPE html>' + elem.parentElement.innerHTML;
     wind.document.open();
     wind.document.write(code);
     wind.document.close();
@@ -151,7 +215,7 @@
 
   var listen = {};
 
-  for (let kind of show) {
+  for (let kind of menu) {
 
     let complete = document.getElementById("complete-" + kind);
     let expected = document.getElementById("expected-" + kind);
@@ -187,7 +251,18 @@
         flexible.scrollIntoView(false);
       }
     }
+  }
 
+  let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
+
+  var show = new Set(menu);
+  for (let kind of hide) {
+    show.delete(kind);
+    document.getElementById("button-" + kind).classList.toggle("hide");
+    document.getElementById("column-" + kind).classList.toggle("hide");
+  }
+
+  for (let kind of show) {
     events.addEventListener(kind, listen[kind]);
   }
 
@@ -195,5 +270,24 @@
     for (let kind of show) {
       listen[kind](event);
     }
+  }
+
+  var toggle = function (elem) {
+    let kind = elem.name;
+    elem.classList.toggle("hide");
+    document.getElementById("column-" + kind).classList.toggle("hide");
+    let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
+    let indx = hide.indexOf(kind);
+    if (indx < 0) {
+      hide.push(kind);
+      show.delete(kind);
+      events.removeEventListener(kind, listen[kind]);
+    }
+    else {
+      hide.splice(indx, 1);
+      show.add(kind);
+      events.addEventListener(kind, listen[kind]);
+    }
+    sessionStorage.setItem("hide", JSON.stringify(hide));
   }
 </script>
