@@ -33,6 +33,8 @@ url = flask.url_for
 
 DATA = []
 
+OPTS = {}
+
 MENU = ['en', 'de', 'cs']
 
 
@@ -79,7 +81,7 @@ def logout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if request.form['pass'] == 'elitr' and request.form['user'] == 'elitr':
+        if request.form['pass'] == OPTS['pass'] and request.form['user'] == OPTS['user']:
             session['auth'] = True
         else:
             flask.flash('The credentials are invalid')
@@ -88,10 +90,25 @@ def login():
         return flask.render_template('login.html', login=url('login'))
 
 
+@app.route('/menu/<path:path>')
+def menu(path):
+    path = path.replace('/', ' ').split()
+    if path:
+        session['menu'] = path
+    return flask.redirect(url('index'))
+
+
+@app.route('/menu/')
+def reset():
+    if 'menu' in session:
+        del session['menu']
+    return flask.redirect(url('index'))
+
+
 @app.route('/')
 def index():
     if session.get('auth'):
-        return flask.render_template('index.html', data=url('data'), menu=MENU)
+        return flask.render_template('index.html', data=url('data'), menu=session.get('menu', MENU))
     else:
         return flask.redirect(url('login'))
 
@@ -100,20 +117,27 @@ def index():
 @click.argument('kind', nargs=-1)
 @click.option('--host', default='127.0.0.1', show_default=True)
 @click.option('--port', default=5000, show_default=True)
+@click.option('--user', default='elitr', show_default=True)
+@click.option('--pass', default='elitr', show_default=True)
 @click.option('--debug / --no-debug', default=False, show_default=True)
 @click.option('--threaded / --no-threaded', default=True, show_default=True)
-@click.option('--ssl_context', default=None, show_default=True,
-              help='Secure with HTTPS if needed.  [TEXT: adhoc]')
 def main(kind, **opts):
     """
     Run the web app to merge, stream, and display online text flow events.
     Post events at /post and listen to their stream at /data. Browse at /.
+
+    The KIND of events to browse by default is ['en', 'de', 'cs']. Change
+    this on the command line for all browsers. Set the /menu endpoint for
+    a custom menu in the browser, like /menu/en/de/cs, and empty to reset.
 
     http://github.com/ELITR/online-text-flow
     """
     global MENU
     if kind:
         MENU = list(kind)
+    for key in ['user', 'pass']:
+        OPTS[key] = opts[key]
+        del opts[key]
     print(' * Opts:', opts)
     print(' * Menu:', MENU)
     monkey.patch_all(ssl=False)
