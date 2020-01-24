@@ -42,6 +42,7 @@
   .flow {
     display: table;
     table-layout: fixed;
+    width: 100%; // !!!
   }
 
   .data {
@@ -68,7 +69,8 @@
 
   .idx {
     text-align: right;
-    width: 10px;
+    padding-right: 12px;
+    width: 36px;
   }
 
   .idx:after {
@@ -105,7 +107,6 @@
     top: 5px;
     width: 80px;
     height: 400px;
-    // background-color: lightgray;
   }
 
   .bar button {
@@ -208,9 +209,9 @@
   }
 
   var adjust = function (expected, incoming, flexible, height) {
-      var fill = expected.offsetHeight + incoming.offsetHeight;
-      var high = (height > fill) ? (height - fill) : 0;
-      flexible.style.height = high + "px";
+    var fill = expected.scrollHeight + incoming.scrollHeight;
+    var high = (height > fill) ? (height - fill) : 0;
+    flexible.style.height = high + "px";
   }
 
   var listen = {};
@@ -248,7 +249,8 @@
       adjust(expected, incoming, flexible, height);
 
       if (scroll) {
-        flexible.scrollIntoView(false);
+        let canvas = document.documentElement;
+        canvas.scroll(0, canvas.scrollHeight);
       }
     }
   }

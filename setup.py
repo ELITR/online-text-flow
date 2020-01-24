@@ -15,6 +15,7 @@ setup(
         'click',
         'flask',
         'gevent',
+        'greenlet',
         'requests',
     ],
     entry_points={
