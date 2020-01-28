@@ -36,7 +36,7 @@ sio = SocketIO(app)
 
 DATA = []
 
-OPTS = {}
+OPTS = {'user': 'elitr', 'pass': 'elitr'}
 
 MENU = ['en', 'de', 'cs']
 
@@ -126,8 +126,8 @@ def index():
 @click.argument('kind', nargs=-1)
 @click.option('--host', default='127.0.0.1', show_default=True)
 @click.option('--port', default=5000, show_default=True)
-@click.option('--user', default='elitr', show_default=True)
-@click.option('--pass', default='elitr', show_default=True)
+@click.option('--user', default=OPTS['user'], show_default=True)
+@click.option('--pass', default=OPTS['pass'], show_default=True)
 @click.option('--debug / --no-debug', default=False, show_default=True)
 def main(kind, **opts):
     """

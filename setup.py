@@ -17,8 +17,8 @@ setup(
         'flask-socketio',
         'gevent',
         'greenlet',
-        'requests',
         'python-socketio[client]',
+        'requests',
     ],
     entry_points={
         'console_scripts': [
