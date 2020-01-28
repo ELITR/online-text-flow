@@ -15,7 +15,8 @@ __email__     = "otakar-smrz users.sf.net"
 # https://stackoverflow.com/questions/27890327/uwsgi-with-gevent-vs-threads
 
 
-from flask import json, request, session
+from flask import Flask, json, request, session
+from flask_socketio import SocketIO
 from gevent import monkey, queue
 
 import flask
@@ -24,11 +25,13 @@ import os
 import click
 
 
-app = flask.Flask(__name__, template_folder='.')
+app = Flask(__name__, template_folder='.')
 
 app.secret_key = os.urandom(16)
 
 url = flask.url_for
+
+sio = SocketIO(app)
 
 
 DATA = []
@@ -50,6 +53,12 @@ def events():
             yield '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
     except:
         DATA.remove(stream)
+
+
+@sio.on('data')
+def emit(data):
+    for stream in DATA:
+        gevent.spawn(stream.put, data)
 
 
 @app.route('/stop', methods=['POST'])
@@ -120,7 +129,6 @@ def index():
 @click.option('--user', default='elitr', show_default=True)
 @click.option('--pass', default='elitr', show_default=True)
 @click.option('--debug / --no-debug', default=False, show_default=True)
-@click.option('--threaded / --no-threaded', default=True, show_default=True)
 def main(kind, **opts):
     """
     Run the web app to merge, stream, and display online text flow events.
@@ -141,7 +149,7 @@ def main(kind, **opts):
     print(' * Opts:', opts)
     print(' * Menu:', MENU)
     monkey.patch_all(ssl=False)
-    app.run(**opts)
+    sio.run(app, **opts)
 
 
 if __name__ == '__main__':

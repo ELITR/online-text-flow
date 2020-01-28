@@ -2,13 +2,14 @@
 
 """Online Text Flow Client"""
 
-__copyright__ = "2019"
+__copyright__ = "2020"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
 __email__     = "otakar-smrz users.sf.net"
 
 
+import socketio
 import requests
 import json
 import re
@@ -16,9 +17,27 @@ import sys
 import click
 
 
+sio = socketio.Client()
+
 code = {100: "complete", 10: "expected", 1: "incoming"}
 
 opts = {}
+
+
+@sio.event
+def connect():
+    print("Connect:", sio.sid, flush=True)
+
+
+@sio.event
+def connect_error():
+    print("Error:", sio.sid, flush=True)
+
+
+@sio.event
+def disconnect():
+    print()
+    print("Disconnect:", sio.sid, flush=True)
 
 
 def empty(kind='', uniq=1):
@@ -36,10 +55,14 @@ def post(event, url):
     uniq = event['id']
     event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
-        resp = requests.post(url + '/post', json=event)
         if opts['-v']:
+            resp = requests.post(url + '/post', json=event)
             event['code'] = resp.status_code
             print(json.dumps(event), flush=True)
+        else:
+            sio.emit('data', event)
+            print(".", end="", flush=True)
+            sio.sleep(0.01)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
@@ -62,6 +85,7 @@ def client(kind, url):
                 event = post(event, url)
             event['data']['text'][code[data[1] - data[0]]].append(data)
     post(event, url)
+    print(flush=True)
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
@@ -88,7 +112,9 @@ def main(kind, url, verbose):
     """
     opts['-v'] = verbose
     try:
+        sio.connect(url)
         client(kind, url)
+        sio.wait()
     except KeyboardInterrupt:
         sys.stderr.close()
 
