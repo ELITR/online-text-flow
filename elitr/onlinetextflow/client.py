@@ -16,6 +16,8 @@ import re
 import sys
 import click
 
+from urllib.parse import urlsplit, urljoin
+
 
 sio = socketio.Client()
 
@@ -112,9 +114,11 @@ def main(kind, url, verbose):
     """
     opts['-v'] = verbose
     try:
-        sio.connect(url)
+        the = urlsplit(url)
+        sio.connect(the.scheme + '://' + the.netloc,
+                    socketio_path=urljoin(the.path + '/', 'socket.io'))
         client(kind, url)
-        sio.wait()
+        sio.disconnect()
     except KeyboardInterrupt:
         sys.stderr.close()
 
