@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='online-text-flow',
-    version='1.2.0',
+    version='1.3.0',
     url='http://github.com/ELITR/online-text-flow',
     license='GPL',
     author='Otakar Smrz',
@@ -12,13 +12,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'asyncio',
         'click',
-        'flask',
-        'flask-socketio',
-        'gevent',
-        'greenlet',
-        'python-socketio[client]',
+        'quart',
         'requests',
+        'websocket-client',
     ],
     entry_points={
         'console_scripts': [

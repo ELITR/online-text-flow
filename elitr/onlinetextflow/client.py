@@ -9,37 +9,19 @@ __author__    = "Otakar Smrz"
 __email__     = "otakar-smrz users.sf.net"
 
 
-import socketio
+import websocket
 import requests
 import json
 import re
 import sys
 import click
 
-from urllib.parse import urlsplit, urljoin
 
-
-sio = socketio.Client()
+webs = websocket.WebSocket()
 
 code = {100: "complete", 10: "expected", 1: "incoming"}
 
 opts = {}
-
-
-@sio.event
-def connect():
-    print("Connect:", sio.sid, flush=True)
-
-
-@sio.event
-def connect_error():
-    print("Error:", sio.sid, flush=True)
-
-
-@sio.event
-def disconnect():
-    print()
-    print("Disconnect:", sio.sid, flush=True)
 
 
 def empty(kind='', uniq=1):
@@ -57,20 +39,28 @@ def post(event, url):
     uniq = event['id']
     event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
-        if opts['-v']:
+        if opts['-w']:
+            webs.send(json.dumps(event))
+            event['code'] = None
+        else:
             resp = requests.post(url + '/post', json=event)
             event['code'] = resp.status_code
+        if opts['-v']:
             print(json.dumps(event), flush=True)
         else:
-            sio.emit('data', event)
             print(".", end="", flush=True)
-            sio.sleep(0.01)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
 
 
 def client(kind, url):
+    if opts['-w']:
+        try:
+            webs.connect(url + '/send')
+        except:
+            url = re.sub('^ws', 'http', url)
+            opts['-w'] = False
     kind = re.sub('\W', '-', " ".join(kind.split()))
     event = empty(kind)
     for line in sys.stdin:
@@ -87,6 +77,8 @@ def client(kind, url):
                 event = post(event, url)
             event['data']['text'][code[data[1] - data[0]]].append(data)
     post(event, url)
+    if opts['-w']:
+        webs.close()
     print(flush=True)
 
 
@@ -97,8 +89,9 @@ def client(kind, url):
               help='Print the JSON event and the response code from the server.')
 def main(kind, url, verbose):
     """
-    Post data from the standard input as the KIND of events to the URL/post
-    endpoint. KIND is empty and URL is http://127.0.0.1:5000 by default.
+    Emit data from the standard input as the KIND of events to the URL/send
+    websocket or the URL/post endpoint, depending on the scheme of the URL.
+    KIND is empty and URL is http://127.0.0.1:5000 by default. Try ws://...!
 
     If an input line contains two integers as artificial timestamps and then
     some text, an event is being built from the consecutive lines while the
@@ -112,13 +105,10 @@ def main(kind, url, verbose):
     progress and are printed to the standard error. Use the --verbose option
     to observe the implementation details and the semantics of the events.
     """
+    opts['-w'] = url.split(':')[0] in ['ws', 'wss']
     opts['-v'] = verbose
     try:
-        the = urlsplit(url)
-        sio.connect(the.scheme + '://' + the.netloc,
-                    socketio_path=urljoin(the.path + '/', 'socket.io'))
         client(kind, url)
-        sio.disconnect()
     except KeyboardInterrupt:
         sys.stderr.close()
 
