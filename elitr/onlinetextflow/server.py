@@ -12,7 +12,7 @@ __email__     = "otakar-smrz users.sf.net"
 # https://pgjones.gitlab.io/quart/#how-to-guides
 
 
-from quart import Quart, json, request, session, websocket
+from quart import Quart, Blueprint, json, request, session, websocket
 
 import quart
 import asyncio
@@ -20,9 +20,7 @@ import os
 import click
 
 
-app = Quart(__name__, template_folder='.')
-
-app.secret_key = os.urandom(16)
+end = Blueprint('end', __name__, template_folder='.')
 
 url = quart.url_for
 
@@ -49,7 +47,7 @@ async def events():
         DATA.remove(stream)
 
 
-@app.websocket('/send')
+@end.websocket('/send')
 async def send():
     while True:
         data = json.loads(await websocket.receive())
@@ -57,14 +55,14 @@ async def send():
             await stream.put(data)
 
 
-@app.route('/stop', methods=['POST'])
+@end.route('/stop', methods=['POST'])
 async def stop():
     for stream in DATA:
         await stream.put(StopIteration)
     return json.jsonify({'stop': len(DATA)})
 
 
-@app.route('/post', methods=['POST'])
+@end.route('/post', methods=['POST'])
 async def post():
     data = await request.json
     for stream in DATA:
@@ -72,7 +70,7 @@ async def post():
     return json.jsonify({'post': len(DATA)})
 
 
-@app.route('/data')
+@end.route('/data')
 async def data():
     response = await quart.make_response(
         events(),
@@ -86,14 +84,14 @@ async def data():
     return response
 
 
-@app.route('/logout')
+@end.route('/logout')
 async def logout():
     session['auth'] = False
     await quart.flash('You have been logged out')
-    return quart.redirect(url('index'))
+    return quart.redirect(url('.index'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@end.route('/login', methods=['GET', 'POST'])
 async def login():
     if request.method == 'POST':
         form = await request.form
@@ -101,13 +99,13 @@ async def login():
             session['auth'] = True
         else:
             quart.flash('The credentials are invalid')
-        return quart.redirect(url('index'))
+        return quart.redirect(url('.index'))
     else:
-        return await quart.render_template('login.html', login=url('login'))
+        return await quart.render_template('login.html', login=url('.login'))
 
 
-@app.route('/menu/<path:path>')
-@app.route('/menu/')
+@end.route('/menu/<path:path>')
+@end.route('/menu/')
 # async
 def menu(path=''):
     path = path.replace('/', ' ').split()
@@ -115,16 +113,28 @@ def menu(path=''):
         session['menu'] = path
     elif 'menu' in session:
         del session['menu']
-    return quart.redirect(url('index'))
+    return quart.redirect(url('.index'))
 
 
-@app.route('/')
+@end.route('/')
 # async
 def index():
     if session.get('auth'):
-        return quart.render_template('index.html', data=url('data'), menu=session.get('menu', MENU))
+        return quart.render_template('index.html', data=url('.data'), menu=session.get('menu', MENU))
     else:
-        return quart.redirect(url('login'))
+        return quart.redirect(url('.login'))
+
+
+app = Quart(__name__, template_folder='.')
+
+app.secret_key = os.urandom(16)
+
+app.register_blueprint(end, url_prefix='/textflow')
+
+
+@app.route('/')
+def point():
+    return quart.redirect(url('end.index'))
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
