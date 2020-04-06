@@ -1,5 +1,13 @@
-from setuptools import setup, find_packages
+import sys
 
+if sys.version_info < (3,7):
+	# this ensures that events and client work on Python 3.6, but server
+	# may not work correctly!!!
+	quart = "quart==0.6.15"
+else:
+	quart = "quart"
+
+from setuptools import setup, find_packages
 setup(
     name='online-text-flow',
     version='1.3.0',
@@ -14,7 +22,7 @@ setup(
     install_requires=[
         'asyncio',
         'click',
-        'quart',
+		quart,
         'requests',
         'websocket-client',
     ],
