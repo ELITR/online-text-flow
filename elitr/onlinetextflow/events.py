@@ -14,6 +14,15 @@ import re
 import sys
 import click
 
+from mosestokenizer import MosesSentenceSplitter
+
+try:
+    from . import textflow_protocol
+except ImportError:
+    import elitr.onlinetextflow.textflow_protocol as textflow_protocol
+
+
+
 
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
@@ -22,7 +31,7 @@ opts = {}
 
 class Flow():
 
-    def __init__(self):
+    def __init__(self, timestamps=False, lang="en"):
         self.data = []
         self.drop = []
         self.flow = []
@@ -31,6 +40,8 @@ class Flow():
         self.crop = 0
         self.done = 0
         self.text = empty()
+        self.timestamps = timestamps
+        self.splitter = MosesSentenceSplitter(lang)
 
     def update(self, data):
         self.data = data
@@ -75,22 +86,34 @@ class Flow():
         flow = self.flow
         text = empty()
         words = []
+        w_beg = -1
+        w_end = -1
         self.crop = 0
         for i in range(len(flow)):
-            sents = sentences(flow[i][2], words)
-            words = sents[-1]
+            sents = self._timestamped_sentences(*flow[i], words, w_beg, w_end)
+            if len(sents) > 1:
+                w_beg, w_end, *words = sents[-1]
+            else:
+                w_beg = -1
+                w_end = -1
+                words = []
+            for i,s in enumerate(sents):
+                if self.timestamps:
+                    s[2] = "%1.1f %1.1f %s" % (s[0],s[1],s[2])
+                s = s[2:]
+                sents[i] = s
             if len(sents) > 1:
                 if i < self.sure:
                     text["complete"].extend(sents[:-1])
                     if words:
-                        flow[i][2] = " ".join(words)
+                        flow[i] = [w_beg, w_end, " ".join(words)]
                         self.crop = i
                     else:
                         self.crop = i + 1
                 else:
                     text["expected"].extend(sents[:-1])
         if words:
-            text["incoming"].extend([words])
+            text["incoming"].extend([sents[-1]])
         done = self.done
         text["complete"] = enumerated(text, "complete", done)
         done += len(text["complete"])
@@ -104,6 +127,35 @@ class Flow():
         self.sure -= self.crop
 
 
+    def _sentences(self, data, words=[]):
+        '''language-dependent sentence splitting
+        by MosesSentenceSplitter
+        '''
+        to_split = []
+        w = " ".join(words)
+        if w:
+            to_split.append(w)
+        if data:
+            to_split.append(data)
+        if to_split:
+            return [ s.split() for s in self.splitter(to_split) ]
+        return []
+
+    def _timestamped_sentences(self, beg, end, data, words=[], w_beg=-1, w_end=-1):
+        sents = self._sentences(data, words)
+        if words:
+            beg = w_beg
+        s_lens = [sum(len(w)+1 for w in s) for s in sents]  # sentence len in chars, including spaces (+1)
+        c_len = sum(s_lens)  # total len in chars
+        b = beg
+        out_sents = []
+        for l,s in zip(s_lens,sents):
+            e = b+(l/c_len)*(end-beg)
+            s = [b, e]+s
+            out_sents.append(s)
+            b = e
+        return out_sents
+
 def empty():
     return {"complete": [], "expected": [], "incoming": []}
 
@@ -113,19 +165,12 @@ def enumerated(text, key, done):
              for (i, t) in enumerate(text[key], done + 1) ]
 
 
-def sentences(data, words=[]):
-    sents = [words]
-    for word in data.split():
-        sents[-1].append(word)
-        if re.search('\w[.!?]$', word):
-            sents.append([])
-    return sents
 
 
-def events():
-    flow = Flow()
+def yield_events(in_stream, timestamps=False, lang="en"):
+    flow = Flow(timestamps, lang)
     show = []
-    for line in sys.stdin:
+    for line in in_stream:
         try:
             line = re.sub('<[^<>]*>', ' ', line)
             data = line.split()
@@ -136,9 +181,10 @@ def events():
             flow.update(data)
             if '-t' in opts:
                 for [i, j, t] in flow.text["complete"]:
-                    print(t, flush=True)
+                    yield t
             elif '-j' in opts:
-                print(json.dumps(flow.__dict__, sort_keys=True), flush=True)
+                j = json.dumps(flow.__dict__, sort_keys=True)
+                yield j
             else:
                 text = []
                 for key in ["complete", "expected", "incoming"]:
@@ -147,15 +193,23 @@ def events():
                 if len(show) < len(text) or not show[-len(text):] == text:
                     show = text
                     for ijt in text:
-                        print(ijt, flush=True)
+                        yield ijt
     if '-t' in opts:
         for key in ["expected", "incoming"]:
-            print('', flush=True)
+            yield ''
             for [i, j, t] in flow.text[key]:
-                print(t, flush=True)
+                yield t
 
+def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
+    if brief:
+        wrap = textflow_protocol.original_to_brief
+    else:
+        wrap = lambda x: x
+    for line in wrap(yield_events(in_stream, timestamps, lang)):
+        print(line,flush=True)
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('lang', default='en')
 @click.option('-l', '--line', 'mode', flag_value='-l', default='--line', show_default=True,
               help='Output the events as lines of artificial timestamps and text, '
               'where specific differences in timestamps group the events and '
@@ -165,7 +219,13 @@ def events():
               'about the data, the flow, the text, and other indicators.')
 @click.option('-t', '--text', 'mode', flag_value='-t',
               help='Output the resulting text split into classes by empty lines.')
-def main(mode):
+@click.option('--timestamps', 'timestamps',is_flag=True, default=False, show_default=True,
+              help='TODO')
+@click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
+              help='The input is converted from the \'brief text-flow\' to '
+              'the \'verbose\' one, a.k.a. the Ota\'s original communication '
+              'protocol with repeated sentences.')
+def main(lang, mode, timestamps, brief):
     """
     Turn data from speech recognition into text for machine translation. The
     emitted events are classified sentences rather than text chunks evolving
@@ -173,7 +233,7 @@ def main(mode):
     """
     opts[mode] = mode
     try:
-        events()
+        events(sys.stdin, brief, timestamps, lang)
     except KeyboardInterrupt:
         sys.stderr.close()
 
