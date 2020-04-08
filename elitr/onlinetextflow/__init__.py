@@ -13,6 +13,7 @@ from .events import main as e
 from .client import main as c
 from .server import main as s
 
+from . import textflow_protocol
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 def main():

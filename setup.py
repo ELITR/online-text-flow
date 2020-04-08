@@ -15,14 +15,16 @@ setup(
     license='GPL',
     author='Otakar Smrz',
     author_email='otakar-smrz users.sf.net',
-    namespace_packages=['elitr'],
+    namespace_packages=[
+		'elitr',
+	],
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         'asyncio',
         'click',
-		quart,
+        quart,
         'requests',
         'websocket-client',
     ],

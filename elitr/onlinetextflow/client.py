@@ -16,6 +16,10 @@ import re
 import sys
 import click
 
+try:
+    from . import textflow_protocol
+except ImportError:
+    import elitr.onlinetextflow.textflow_protocol as textflow_protocol
 
 webs = websocket.WebSocket()
 
@@ -39,31 +43,39 @@ def post(event, url):
     uniq = event['id']
     event['id'] = 'event%s-%d' % ('-' + kind if kind else '', uniq)
     if any(event['data']['text'].values()):
-        if opts['-w']:
+        if opts['websocket']:
             webs.send(json.dumps(event))
             event['code'] = None
         else:
             resp = requests.post(url + '/post', json=event)
             event['code'] = resp.status_code
-        if opts['-v']:
+        if opts['verbose']:
             print(json.dumps(event), flush=True)
-        else:
-            print(".", end="", flush=True)
+#        else:
+#            print(".", end="", flush=True)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
 
+def wrapped_input_stream(in_stream):
+    if opts['brief']:
+        for line in textflow_protocol.brief_to_original(in_stream):
+            yield line
+    else:
+        for line in in_stream:
+            yield line
 
 def client(kind, url):
-    if opts['-w']:
+    if opts['websocket']:
         try:
             webs.connect(url + '/send')
         except:
             url = re.sub('^ws', 'http', url)
-            opts['-w'] = False
+            opts['websocket'] = False
     kind = re.sub('\W', '-', " ".join(kind.split()))
     event = empty(kind)
-    for line in sys.stdin:
+    for line in wrapped_input_stream(sys.stdin):
+        #print(line,flush=True,end="")
         if line[:1] == "{":
             event = post(event, url)
             event['data'] = json.loads(line)
@@ -77,21 +89,25 @@ def client(kind, url):
                 event = post(event, url)
             event['data']['text'][code[data[1] - data[0]]].append(data)
     post(event, url)
-    if opts['-w']:
+    if opts['websocket']:
         webs.close()
     print(flush=True)
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('kind', default='')
-@click.argument('url', default='http://127.0.0.1:5000')
+@click.argument('url', default='ws://127.0.0.1:5000')
 @click.option('-v', '--verbose', is_flag=True, default=False, show_default=True,
               help='Print the JSON event and the response code from the server.')
-def main(kind, url, verbose):
+@click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
+              help='The input is converted from the \'brief text-flow\' to '
+              'the \'verbose\' one, a.k.a. the Ota\'s original communication '
+              'protocol with repeated sentences.')
+def main(kind, url, verbose, brief):
     """
     Emit data from the standard input as the KIND of events to the URL/send
     websocket or the URL/post endpoint, depending on the scheme of the URL.
-    KIND is empty and URL is http://127.0.0.1:5000 by default. Try ws://...!
+    KIND is empty and URL is ws://127.0.0.1:5000 by default.
 
     If an input line contains two integers as artificial timestamps and then
     some text, an event is being built from the consecutive lines while the
@@ -105,8 +121,14 @@ def main(kind, url, verbose):
     progress and are printed to the standard error. Use the --verbose option
     to observe the implementation details and the semantics of the events.
     """
-    opts['-w'] = url.split(':')[0] in ['ws', 'wss']
-    opts['-v'] = verbose
+    if url.startswith('http'):
+        print('%s Error: Invalid protocol used. http:// and https:// URL '
+            'are disabled. Use ws:// or wss://. Terminating.''' % sys.argv[0], 
+            file=sys.stderr)
+        sys.exit(1)
+    opts['websocket'] = url.split(':')[0] in ['ws', 'wss']
+    opts['verbose'] = verbose
+    opts['brief'] = brief
     try:
         client(kind, url)
     except KeyboardInterrupt:
