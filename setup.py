@@ -34,6 +34,7 @@ setup(
             'online-text-flow-events=elitr.onlinetextflow.events:main',
             'online-text-flow-client=elitr.onlinetextflow.client:main',
             'online-text-flow-server=elitr.onlinetextflow.server:main',
+#            'online-text-flow-brief=elitr.onlinetextflow.to_brief:main',
         ],
     },
 )

@@ -21,9 +21,6 @@ try:
 except ImportError:
     import elitr.onlinetextflow.textflow_protocol as textflow_protocol
 
-
-
-
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
 opts = {}
@@ -86,27 +83,18 @@ class Flow():
         flow = self.flow
         text = empty()
         words = []
-        w_beg = -1
-        w_end = -1
+        w_beg = -1  # beginning timestamp of words
         self.crop = 0
         for i in range(len(flow)):
-            sents = self._timestamped_sentences(*flow[i], words, w_beg, w_end)
-            if len(sents) > 1:
-                w_beg, w_end, *words = sents[-1]
-            else:
-                w_beg = -1
-                w_end = -1
-                words = []
-            for i,s in enumerate(sents):
-                if self.timestamps:
-                    s[2] = "%1.1f %1.1f %s" % (s[0],s[1],s[2])
-                s = s[2:]
-                sents[i] = s
+            sents, w_beg = self._timestamped_sentences(*flow[i], words, w_beg)
+            words = sents[-1][::]
+            if self.timestamps:
+                words[0] = words[0].split()[-1]
             if len(sents) > 1:
                 if i < self.sure:
                     text["complete"].extend(sents[:-1])
                     if words:
-                        flow[i] = [w_beg, w_end, " ".join(words)]
+                        flow[i][2] = " ".join(words)
                         self.crop = i
                     else:
                         self.crop = i + 1
@@ -141,20 +129,38 @@ class Flow():
             return [ s.split() for s in self.splitter(to_split) ]
         return []
 
-    def _timestamped_sentences(self, beg, end, data, words=[], w_beg=-1, w_end=-1):
+    def _timestamped_sentences(self, beg, end, data, words=[], w_beg=-1):
+        '''returns: sentences as a list of lists of tokens, beginning
+        timestamps of the last "sentence" (or a sentence prefix)
+
+        if self.timestamps:
+            the first "token" of each sentence is actually "beg end token",
+        else:
+            it's not
+
+        The sentence-timestamps are estimated from the beginning and ending
+        timestamps of the whole segment, by the sentence lengths in characters. 
+
+        DISCLAIMER: They may be inaccurate, if the speech pace varies!!!
+        '''
         sents = self._sentences(data, words)
+        if not self.timestamps:
+            return sents, -1
+
         if words:
             beg = w_beg
         s_lens = [sum(len(w)+1 for w in s) for s in sents]  # sentence len in chars, including spaces (+1)
         c_len = sum(s_lens)  # total len in chars
         b = beg
         out_sents = []
+        last_b = b
         for l,s in zip(s_lens,sents):
             e = b+(l/c_len)*(end-beg)
-            s = [b, e]+s
+            s[0] = "%1.1f %1.1f %s" % (b,e,s[0])  # "beg end token"
             out_sents.append(s)
+            last_b = b
             b = e
-        return out_sents
+        return out_sents, last_b
 
 def empty():
     return {"complete": [], "expected": [], "incoming": []}

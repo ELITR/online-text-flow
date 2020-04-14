@@ -36,17 +36,17 @@ def brief_to_original(in_stream):
 
 
 def original_to_brief(in_stream):
-	buff = {}
-	last_ch = 0
-	for line in in_stream:
-		(index, status), text = parse(line)
-		if status-index == 100:
-			yield line
-			if index in buff:
-				del buff[index]
-		else:
-			if index > last_ch or index not in buff or buff[index] != line:
-				yield line
-				buff[index] = line
-				last_ch = index
+    buff = {}
+    last_ch = 0
+    for line in in_stream:
+        (index, status), text = parse(line)
+        if status-index == 100:
+            yield line
+            if index in buff:
+                del buff[index]
+        else:
+            if index > last_ch or index not in buff or buff[index] != line:
+                yield line
+                buff[index] = line
+                last_ch = index
 
