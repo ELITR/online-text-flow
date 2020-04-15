@@ -68,3 +68,29 @@
       }
     }, 2000);
 </script>
+
+<!-- Try to login automatically -->
+<script>
+  function parseGETParams() {
+      let queryString = window.location.search.substring(1)
+
+      let params = {}
+      let queries = queryString.split("&")
+
+      queries.forEach((indexQuery) => {
+          let indexPair = indexQuery.split("=")
+          let queryKey = decodeURIComponent(indexPair[0])
+          let queryValue = decodeURIComponent(indexPair.length > 1 ? indexPair[1] : "")
+          params[queryKey] = queryValue
+      })
+
+      return params
+  }
+  let params = parseGETParams()
+  if ('login' in params) {
+    let values = params['login'].split(':')
+    document.querySelector("[type=username]").value = values[0]
+    document.querySelector("[type=password]").value = values[1]
+    document.getElementsByTagName("form")[0].submit()
+  }
+</script>

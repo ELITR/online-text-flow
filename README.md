@@ -186,6 +186,8 @@ Further subtitling viewport can be probably implemented using the CSS `overflow`
 
 Includes the flashing of login and logout messages as provided by Flask. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
 
+If GET parameter `login` is provided, e.g. `/login.html?login=username:password`, they are automatically inputted in the form and submitted.
+
 ## Example
 
 Let us see how the speech recognition output is transformed into the machine translation input using the text flow [events](#online-text-flow-events--eventspy). First, let us get familiar with the first 30 lines of [`data/en.txt`](data/en.txt#L1):
