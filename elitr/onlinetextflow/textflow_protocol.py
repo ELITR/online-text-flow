@@ -50,3 +50,44 @@ def original_to_brief(in_stream):
                 buff[index] = line
                 last_ch = index
 
+class BriefConverter:
+    '''Enables using original_to_brief multiple times and hold the state.'''
+    def __init__(self):
+        self.buff = {}
+        self.last_ch = 0
+        
+        self.ins_q = []
+
+    def insert_stream(self, stream):
+        for s in stream:
+            self.insert(s)
+
+    def insert(self, s):
+        self.ins_q.append(s)
+
+    def condition(self, line, change_state=False):
+        # TODO: repeated code -- ugly :( but easy
+        (index, status), text = parse(line)
+        if status-index == 100:
+            if change_state:
+                if index in self.buff:
+                    del self.buff[index]
+            return True
+        if index > self.last_ch or index not in self.buff or self.buff[index] != line:
+            if change_state:
+                self.buff[index] = line
+                self.last_ch = index
+            return True
+        return False
+
+    def yield_converted(self):
+        while self.ins_q:
+            line = self.ins_q.pop(0)
+            if self.condition(line, change_state=True):
+                yield line
+
+    def filter(self):
+        out = [ self.condition(line, change_state=True) for line in self.ins_q ]
+        self.ins_q = []
+        return out
+
