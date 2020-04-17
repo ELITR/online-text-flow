@@ -20,7 +20,7 @@ import os
 import click
 
 
-end = Blueprint('end', __name__, template_folder='.')
+end = Blueprint('textflow', __name__, template_folder='.')
 
 url = quart.url_for
 
@@ -95,13 +95,16 @@ async def logout():
 async def login():
     if request.method == 'POST':
         form = await request.form
-        if form['pass'] == OPTS['pass'] and form['user'] == OPTS['user']:
-            session['auth'] = True
-        else:
-            quart.flash('The credentials are invalid')
-        return quart.redirect(url('.index'))
+        auth = form.get('user', '') + ':' + form.get('pass', '')
     else:
+        auth = request.args.get('auth', ':')
+    if auth == ':':
         return await quart.render_template('login.html', login=url('.login'))
+    else:
+        session['auth'] = auth == OPTS['user'] + ':' + OPTS['pass']
+        if not session['auth']:
+            await quart.flash('The credentials are invalid')
+        return quart.redirect(url('.index'))
 
 
 @end.route('/menu/<path:path>')
@@ -129,12 +132,12 @@ app = Quart(__name__, template_folder='.')
 
 app.secret_key = os.urandom(16)
 
-app.register_blueprint(end, url_prefix='/textflow')
+app.register_blueprint(end, url_prefix='/' + end.name)
 
 
 @app.route('/')
 def point():
-    return quart.redirect(url('end.index'))
+    return quart.redirect(url(end.name + '.index'))
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
@@ -146,14 +149,13 @@ def point():
 @click.option('--debug / --no-debug', default=False, show_default=True)
 def main(kind, **opts):
     """
-    Run the web app to merge, stream, and display online text flow events.
-    Post events at /post. Send events thru a websocket at /send instead of
-    posting separate requests. Listen to the event stream at /data. Browse
-    at /.
+    Run the web app to merge, stream, and render online text flow events. Post
+    events at /post. Send events thru a websocket at /send instead of posting
+    separate requests. Listen to the event stream at /data. Browse at /.
 
-    The KIND of events to browse by default is ['en', 'de', 'cs']. Change
-    this on the command line for all browsers. Set the /menu endpoint for
-    a custom menu in the browser, like /menu/en/de/cs, and empty to reset.
+    The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
+    on the command line for all browsers. Set the /menu endpoint for a custom
+    menu in the browser, like /menu/en/de/cs, and empty to reset.
 
     http://github.com/ELITR/online-text-flow
     """

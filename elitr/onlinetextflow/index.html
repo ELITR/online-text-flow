@@ -3,6 +3,10 @@
 <title>ELITR Online Text Flow</title>
 
 <style>
+  :root {
+    --elitrblue: rgb(10, 80, 225);
+  }
+
   .row {
     display: flex;
     flex-direction: row;
@@ -112,7 +116,7 @@
   .bar button {
     display: block;
     width: 60px;
-    border: 1px solid dodgerblue;
+    border: 1px solid var(--elitrblue);
     border-radius: 0px;
     margin: 5px 10px;
     padding: 1px;
@@ -124,11 +128,11 @@
     text-transform: uppercase;
     outline: none;
     color: white;
-    background-color: dodgerblue;
+    background-color: var(--elitrblue);
   }
 
   .bar button.hide {
-    color: dodgerblue;
+    color: var(--elitrblue);
     background-color: white;
   }
 
