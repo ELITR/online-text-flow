@@ -193,7 +193,7 @@ The kind of events to browse by default is ['en', 'de', 'cs']. Change this for a
 
 Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
 
-To log in without the need to fill in the login form, open the `/textflow/login?auth=username:password`endpoint.
+To log in without the need to fill in the login form, open the `/textflow/login?auth=USERNAME:PASSWORD` endpoint.
 
 ## Example
 
