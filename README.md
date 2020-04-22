@@ -5,7 +5,7 @@ Online event streaming to improve data and text flows
 
 ## Setup
 
-This project is integrated with [Flask](https://flask.palletsprojects.com), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
+This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
 
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow/
@@ -48,25 +48,29 @@ Run the server locally and post some data:
     head -n 80 data/cs.txt | online-text-flow-events --json | online-text-flow-client cs
     head -n 80 data/en.txt | online-text-flow events --json | online-text-flow client
 
-View the event stream of the data and post to the endpoint:
+View the event stream of the data and send/post to the endpoint:
 
-- http://127.0.0.1:5000/
-- http://127.0.0.1:5000/data
-- http://127.0.0.1:5000/post
+- http://127.0.0.1:5000
+- http://127.0.0.1:5000/textflow
+- http://127.0.0.1:5000/textflow/data
+- http://127.0.0.1:5000/textflow/post
+- ws://127.0.0.1:5000/textflow/send
 
 Run the server remotely and post the data to it from your client:
 
     @quest.ms.mff.cuni.cz> git pull
     @quest.ms.mff.cuni.cz> online-text-flow server --host 195.113.20.53
 
-    cat data/en.txt | online-text-flow events | online-text-flow client en http://quest.ms.mff.cuni.cz:5000
-    cat data/cs.txt | online-text-flow events | online-text-flow client cs http://quest.ms.mff.cuni.cz:5000
+    cat data/en.txt | online-text-flow events | online-text-flow client en ws://quest.ms.mff.cuni.cz:5000/textflow
+    cat data/cs.txt | online-text-flow events | online-text-flow client cs ws://quest.ms.mff.cuni.cz:5000/textflow
 
-View the event stream of the data and post to the endpoint:
+View the event stream of the data and sedn/post to the endpoint:
 
 - http://quest.ms.mff.cuni.cz:5000
-- http://quest.ms.mff.cuni.cz:5000/data
-- http://quest.ms.mff.cuni.cz:5000/post
+- http://quest.ms.mff.cuni.cz:5000/textflow
+- http://quest.ms.mff.cuni.cz:5000/textflow/data
+- http://quest.ms.mff.cuni.cz:5000/textflow/post
+- ws://quest.ms.mff.cuni.cz:5000/textflow/send
 
 ## Further Notes
 
@@ -109,7 +113,7 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
       -h, --help  Show this message and exit.
     
     Commands:
-      client  Post data from the standard input as the KIND of events to the...
+      client  Emit data from the standard input as the KIND of events to the...
       events  Turn data from speech recognition into text for machine...
       server  Run the web app to merge, stream, and display online text flow...
 
@@ -161,32 +165,35 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
 
 ### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
 
-    Usage: online-text-flow server [OPTIONS]
+    Usage: online-text-flow server [OPTIONS] [KIND]...
     
-      Run the web app to merge, stream, and display online text flow events.
-      Post events at /post and listen to their stream at /data. Browse at /.
+      Run the web app to merge, stream, and render online text flow events. Post
+      events at /post. Send events thru a websocket at /send instead of posting
+      separate requests. Listen to the event stream at /data. Browse at /.
+    
+      The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
+      on the command line for all browsers. Set the /menu endpoint for a custom
+      menu in the browser, like /menu/en/de/cs, and empty to reset.
     
       http://github.com/ELITR/online-text-flow
     
     Options:
-      --host TEXT                 [default: 127.0.0.1]
-      --port INTEGER              [default: 5000]
-      --debug / --no-debug        [default: False]
-      --threaded / --no-threaded  [default: True]
-      --ssl_context TEXT          Secure with HTTPS if needed.  [TEXT: adhoc]
-      -h, --help                  Show this message and exit.
+      --host TEXT           [default: 127.0.0.1]
+      --port INTEGER        [default: 5000]
+      --user TEXT           [default: *****]
+      --pass TEXT           [default: *****]
+      --debug / --no-debug  [default: False]
+      -h, --help            Show this message and exit.
 
 ### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
 
-Customize `var flow = {"en": '', "de": '', "cs": ''}` if other kinds or names of event streams are needed. Unnamed events are displayed in all streams. Reload the `/` endpoint to clear the `flow` history of complete text in the browser.
-
-Further subtitling viewport can be probably implemented using the CSS `overflow` and the jQuery `animate` features.
+The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/textflow/menu/en/de/cs`, and empty `/textflow/menu` to reset.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
-Includes the flashing of login and logout messages as provided by Flask. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
+Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
 
-If GET parameter `login` is provided, e.g. `/login.html?login=username:password`, they are automatically inputted in the form and submitted.
+To log in without the need to fill in the login form, open the `/textflow/login?auth=username:password`endpoint.
 
 ## Example
 
