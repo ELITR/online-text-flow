@@ -338,12 +338,14 @@ We...
 
 ## Brief Format
 
-The distinction between brief and original format is a temporary construction for backward compatibility. After we review or adapt subtitler, we make brief format default and hide the option to users.
+The distinction between brief and original format is a temporary construction for backward compatibility. After we review or adapt subtitler, we make brief format default and hide it from users.
+
+There are `from_brief` and `to_brief` entry points to convert between them. `client` has parameter `-b` to receive brief format. Communication between `client` and `server` is done with the original format.
 
 
 The difference is illustrated here:
 
-Original:
+**Original**
 
 ```
 (p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en  < data/en.txt  | head -n 20
@@ -369,7 +371,7 @@ Original:
 100 110 You should.
 ```
 
-Brief:
+**Brief**
 
 ```
 (p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en -b < data/en.txt  | head -n 20
