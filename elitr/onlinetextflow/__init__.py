@@ -13,6 +13,8 @@ from .events import main as e
 from .client import main as c
 from .server import main as s
 from .to_brief import main as tb
+from .from_brief import main as fb
+
 
 
 from . import textflow_protocol
@@ -31,7 +33,8 @@ def main():
 main.add_command(e, 'events')
 main.add_command(c, 'client')
 main.add_command(s, 'server')
-main.add_command(tb, 'brief')
+main.add_command(tb, 'to_brief')
+main.add_command(fb, 'from_brief')
 
 if __name__ == '__main__':
     main()
