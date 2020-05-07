@@ -1,7 +1,7 @@
 # online-text-flow
 Online event streaming to improve data and text flows
 
-[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example)
+[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief format](#brief-format)
 
 ## Setup
 
@@ -103,64 +103,80 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
     Usage: online-text-flow [OPTIONS] COMMAND [ARGS]...
-    
+
       Entry point for the executables of the online-text-flow project. Replace
       the COMMAND from the list below to learn more details.
-    
+
       Try `online-text-flow COMMAND --help` and `online-text-flow-COMMAND -h`.
-    
+
     Options:
       -h, --help  Show this message and exit.
-    
+
     Commands:
-      client  Emit data from the standard input as the KIND of events to the...
-      events  Turn data from speech recognition into text for machine...
-      server  Run the web app to merge, stream, and display online text flow...
+      client      Emit data from the standard input as the KIND of events to
+                  the...
+      events      Turn data from speech recognition into text for machine...
+      from_brief  Converts from the brief text-flow into the original one.
+      server      Run the web app to merge, stream, and render online text flow...
+      to_brief    Converts into the brief text-flow.
 
 ### online-text-flow events / [events.py](elitr/onlinetextflow/events.py)
 
-    Usage: online-text-flow events [OPTIONS]
-    
+    Usage: online-text-flow events [OPTIONS] [LANG]
+
       Turn data from speech recognition into text for machine translation. The
       emitted events are classified sentences rather than text chunks evolving
       in time and disturbing the flow. The complete text is emitted just once.
-    
+
+          Parameters:
+
+          [LANG] is the source language passed to MosesSentenceSplitter. Default
+          is en.
+
     Options:
-      -l, --line  Output the events as lines of artificial timestamps and text,
-                  where specific differences in timestamps group the events and
-                  classify the text as "complete", "expected", and "incoming".
-                  [default: --line]
-      -j, --json  Output the events as JSON objects with detailed information
-                  about the data, the flow, the text, and other indicators.
-      -t, --text  Output the resulting text split into classes by empty lines.
-      -h, --help  Show this message and exit.
+      -l, --line    Output the events as lines of artificial timestamps and text,
+                    where specific differences in timestamps group the events and
+                    classify the text as "complete", "expected", and "incoming".
+                    [default: --line]
+      -j, --json    Output the events as JSON objects with detailed information
+                    about the data, the flow, the text, and other indicators.
+      -t, --text    Output the resulting text split into classes by empty lines.
+      --timestamps  Output the real events timestamps as 3rd and 4th space-
+                    separated column. The timestamps are approximated by from the
+                    input segments by length in characters.  [default: False]
+      -b, --brief   The input is converted from the 'brief text-flow' to the
+                    'verbose' one, a.k.a. the Ota's original communication
+                    protocol with repeated sentences.  [default: False]
+      -h, --help    Show this message and exit.
+
+
 
 ### online-text-flow client / [client.py](elitr/onlinetextflow/client.py)
 
     Usage: online-text-flow client [OPTIONS] [KIND] [URL]
-    
-      Post data from the standard input as the KIND of events to the URL/post
-      endpoint. KIND is empty and URL is http://127.0.0.1:5000 by default. Use
-      the --force option to post even if the event's data have not changed.
-    
+
+      Emit data from the standard input as the KIND of events to the URL/send
+      websocket or the URL/post endpoint, depending on the scheme of the URL.
+      KIND is empty and URL is ws://127.0.0.1:5000 by default.
+
       If an input line contains two integers as artificial timestamps and then
       some text, an event is being built from the consecutive lines while the
       timestamps increase. The specific difference of timestamps on one line
       classifies the text as "complete", "expected", "incoming", or ignored.
-    
+
       If the data on a line is a JSON object, the event being built is posted,
       then the data object is decorated and posted as an event of its own.
-    
+
       Lines that do not fit the logic are ignored. They do not emit the event in
       progress and are printed to the standard error. Use the --verbose option
-      to discover the implementation details and the semantics of the events.
-    
+      to observe the implementation details and the semantics of the events.
+
     Options:
-      -f, --force    Force the post even if the event's data have not changed.
+      -v, --verbose  Print the JSON event and the response code from the server.
                      [default: False]
-      -v, --verbose  Print the JSON response from the server and the event's
-                     metadata if its data have not changed and were not forced.
-                     [default: False]
+      -b, --brief    The input is converted from the 'brief text-flow' to the
+                     'verbose' one, a.k.a. the Ota's original communication
+                     protocol with repeated sentences.  [default: False]
       -h, --help     Show this message and exit.
 
 ### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
@@ -292,4 +308,89 @@ You should.
 Thank there have been many revolutions over the last century, but perhaps none as significant as the longevity revolution.
 
 We...
+```
+
+### Timestamps
+
+```
+(p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en --timestamps < data/en.txt  | head -n 20
+100 101 130.0 480.0 You...
+100 101 130.0 840.0 You should...
+100 101 130.0 1200.0 You should...
+100 101 130.0 2280.0 You should...
+100 101 130.0 10200.0 You should...
+100 101 130.0 10560.0 You should...
+100 101 130.0 13080.0 You should...
+100 101 130.0 14160.0 You should thank.
+100 110 130.0 6336.2 You should.
+200 201 6336.2 16680.0 Thank there have...
+100 110 130.0 5614.3 You should.
+200 201 5614.3 17040.0 Thank there have been...
+100 110 130.0 5064.3 You should.
+200 201 5064.3 17400.0 Thank there have been many...
+100 110 130.0 4537.5 You should.
+200 201 4537.5 17760.0 Thank there have been many revel...
+100 110 130.0 4362.9 You should.
+200 201 4362.9 18120.0 Thank there have been many revolution.
+100 110 130.0 4207.8 You should.
+200 201 4207.8 18480.0 Thank there have been many revolutions...
+```
+
+## Brief Format
+
+The distinction between brief and original format is a temporary construction for backward compatibility. After we review or adapt subtitler, we make brief format default and hide the option to users.
+
+
+The difference is illustrated here:
+
+Original:
+
+```
+(p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en  < data/en.txt  | head -n 20
+100 101 You...
+100 101 You should...
+100 101 You should thank.
+100 110 You should.
+200 201 Thank there have...
+100 110 You should.
+200 201 Thank there have been...
+100 110 You should.
+200 201 Thank there have been many...
+100 110 You should.
+200 201 Thank there have been many revel...
+100 110 You should.
+200 201 Thank there have been many revolution.
+100 110 You should.
+200 201 Thank there have been many revolutions...
+100 110 You should.
+200 201 Thank there have been many revolutions over the...
+100 110 You should.
+200 201 Thank there have been many revolutions over the last century.
+100 110 You should.
+```
+
+Brief:
+
+```
+(p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en -b < data/en.txt  | head -n 20
+100 101 You...
+100 101 You should...
+100 101 You should thank.
+100 110 You should.
+200 201 Thank there have...
+200 201 Thank there have been...
+200 201 Thank there have been many...
+200 201 Thank there have been many revel...
+200 201 Thank there have been many revolution.
+200 201 Thank there have been many revolutions...
+200 201 Thank there have been many revolutions over the...
+200 201 Thank there have been many revolutions over the last century.
+200 210 Thank there have been many revolutions over the last century.
+300 301 But perhaps...
+300 301 But perhaps none...
+300 301 But perhaps none as...
+200 201 Thank there have been many revolutions over the last century, but perhaps none as sick...
+200 201 Thank there have been many revolutions over the last century, but perhaps none as significant...
+200 201 Thank there have been many revolutions over the last century, but perhaps none as significant as...
+200 210 Thank there have been many revolutions over the last century.
 ```
