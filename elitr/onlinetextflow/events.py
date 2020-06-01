@@ -171,12 +171,27 @@ def enumerated(text, key, done):
              for (i, t) in enumerate(text[key], done + 1) ]
 
 
+def bug_fix_repetitions(in_stream):
+    # by Dominik
+    # bad hack to fix https://github.com/ELITR/online-text-flow/issues/5
+    # TODO: fix permanently and remove
+    last = None
+    i = 0
+    for line in in_stream:
+        (beg, end), line = textflow_protocol.parse(line, types=[int, int])
+        if last and (beg,end) == last:
+            i += 1
+        else:
+            i = 0
+        last = (beg,end)
+        yield "%d %d %s\n" % (beg*10, end*10+i, line)
+
 
 
 def yield_events(in_stream, timestamps=False, lang="en"):
     flow = Flow(timestamps, lang)
     show = []
-    for line in in_stream:
+    for line in bug_fix_repetitions(in_stream):
         try:
             line = re.sub('<[^<>]*>', ' ', line)
             data = line.split()
@@ -189,7 +204,9 @@ def yield_events(in_stream, timestamps=False, lang="en"):
                 for [i, j, t] in flow.text["complete"]:
                     yield t
             elif '-j' in opts:
-                j = json.dumps(flow.__dict__, sort_keys=True)
+                d = flow.__dict__.copy()
+                del d['splitter']
+                j = json.dumps(d, sort_keys=True)
                 yield j
             else:
                 text = []
