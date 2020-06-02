@@ -29,13 +29,13 @@ opts = {}
 class Flow():
 
     def __init__(self, timestamps=False, lang="en"):
-        self.data = []
-        self.drop = []
-        self.flow = []
-        self.this = -1
-        self.sure = 0
-        self.crop = 0
-        self.done = 0
+        self.data = []  # to, co přijde
+        self.drop = []  # 
+        self.flow = []  # ?
+        self.this = -1  # index do flow
+        self.sure = 0   # kolik je potvrzených
+        self.crop = 0   # index v potvrzených částech, kolik toho vyhodit
+        self.done = 0   # kolik je complete vět
         self.text = empty()
         self.timestamps = timestamps
         self.splitter = MosesSentenceSplitter(lang)
@@ -47,41 +47,62 @@ class Flow():
 
     def __flow__(self):
         data = self.data.copy()
-        flow = self.flow
+        flow = self.flow  # před vložením
         if not flow:
             self.flow = [data]
             self.this = 0
         else:
-            f = len(flow) - 1
+            f = len(flow) - 1  # f jako from
             for f in range(f, -1, -1):
                 if flow[f][1] <= data[0]:
                     f += 1
                     break
-            t = f
+            t = f  # t jako to
             for t in range(t, len(flow)):
                 if flow[t][1] > data[1]:
                     t -= 1
                     break
+			# data se zařazují do flow, kam patří
             self.flow = flow[:f] + [data] + flow[t + 1:]
-            self.drop = flow[f:t + 1]
+            self.drop = flow[f:t + 1]  # ta vynechaná část
             self.this = f
-            if data[1] <= flow[-1][1]:
-                self.sure = f + 1
+			# < by mohlo spravit ten českej případ
+			# konec toho, co přišlo <= konec posledního času v minulym flow
+            if data[1] <= flow[-1][1]: 
+				# vracíme se v čase, máme tu potvrzující element
+                self.sure = f + 1 
+			# když začátek data  >= konec minulýho
+			# je tam mezera
             if data[0] >= flow[-1][1]:
+				# nějakej čas se přeskočil, nebudeme se do něj vracet
                 self.sure = f
+			
+			# eště jsou nějaký elementy za mnou
+			# a
+			# jeho začátek je dřív než končí můj novej
+			# (taky by místo data[1] mohlo bejt self.flow[f][1])
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
-                words = self.flow[f + 1][2].split()
+				# v self.flow[f+1] odsekneme kus začátku, kterej teď přišel
+				# v data
+                words = self.flow[f + 1][2].split() 
                 count = len(data[2].split())
+				# v tom data může bejt něco, co překrývá celý segmenty. Ty
+				# jsou teď v self.drop
+				
                 minus = sum(len(drop[2].split()) for drop in self.drop)
+				# to, co přišlo, má víc slov, než co jsem vyhodil, tak já
+				# nějaký slova odseknu z toho, příštího
                 if count > minus:
                     self.drop.append([self.flow[f + 1][0], data[1],
                                       " ".join(words[:count - minus])])
+					# možná ven z toho ifu
                     self.flow[f + 1][0] = data[1]
                     self.flow[f + 1][2] = " ".join(words[count - minus:])
 
     def __text__(self):
+		# ze současnýho flow to na
         flow = self.flow
-        text = empty()
+        text = empty()  # to, co jde na výstup
         words = []
         w_beg = -1  # beginning timestamp of words
         self.crop = 0
@@ -110,8 +131,8 @@ class Flow():
         done += len(text["expected"])
         text["incoming"] = enumerated(text, "incoming", done)
         self.text = text
-        self.flow = flow[self.crop:]
-        self.this -= self.crop
+        self.flow = flow[self.crop:]  # zapomene se finalizovanej úsek, aby nebyl memory leak
+        self.this -= self.crop  # indexy se posunou o vymazanou část
         self.sure -= self.crop
 
 
@@ -167,6 +188,10 @@ def empty():
 
 
 def enumerated(text, key, done):
+	'''text:
+	key:
+	done: od čeho enumerovat
+	'''
     return [ [i * 100, i * 100 + code[key], " ".join(t)]
              for (i, t) in enumerate(text[key], done + 1) ]
 
