@@ -2,20 +2,22 @@
 
 setup=`dirname $0`
 
-cd $setup/../logs
-
-sudo ln $setup/nginx /etc/nginx/sites-available/nginx
-sudo ln -s /etc/nginx/sites-available/nginx /etc/nginx/sites-enabled/nginx
+sudo ln -i $setup/nginx /etc/nginx/sites-available/nginx
+sudo ln -i -s /etc/nginx/sites-available/nginx /etc/nginx/sites-enabled/nginx
 
 sudo nginx -s reload
 
-nohup online-text-flow server --path textflow   --port 5000          > 5000.log &
-nohup online-text-flow server --path textflow/1 --port 5001 en de cs > 5001.log &
-nohup online-text-flow server --path textflow/2 --port 5002 en fr it > 5002.log &
-nohup online-text-flow server --path textflow/3 --port 5003 cs en fr > 5003.log &
+cd $setup/../logs
 
-nohup online-text-flow server --path elitr                 --port 6000 > 6000.log &
-nohup online-text-flow server --path elitr/sg1             --port 6001 > 6001.log &
-nohup online-text-flow server --path elitr/monday-seminars --port 6002 > 6002.log &
+nohup online-text-flow server --path textflow   --port 5000          > 5000.log 2>&1 &
+nohup online-text-flow server --path textflow/1 --port 5001 en de cs > 5001.log 2>&1 &
+nohup online-text-flow server --path textflow/2 --port 5002 en fr it > 5002.log 2>&1 &
+nohup online-text-flow server --path textflow/3 --port 5003 cs en fr > 5003.log 2>&1 &
+
+nohup online-text-flow server --path elitr                 --port 6000 > 6000.log 2>&1 &
+nohup online-text-flow server --path elitr/sg1             --port 6001 > 6001.log 2>&1 &
+nohup online-text-flow server --path elitr/monday-seminars --port 6002 > 6002.log 2>&1 &
+
+head *.log
 
 cd -
