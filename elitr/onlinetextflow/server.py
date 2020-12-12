@@ -19,17 +19,19 @@ import asyncio
 import os
 import click
 
+from . import config
 
-end = Blueprint('textflow', __name__, template_folder='.')
+
+end = Blueprint(config.path, __name__, template_folder='.')
 
 url = quart.url_for
 
 
 DATA = []
 
-OPTS = {'user': 'elitr', 'pass': 'elitr'}
+OPTS = config.auth
 
-MENU = ['en', 'de', 'cs']
+MENU = config.menu
 
 
 async def events():
@@ -132,8 +134,6 @@ app = Quart(__name__, template_folder='.')
 
 app.secret_key = os.urandom(16)
 
-app.register_blueprint(end, url_prefix='/' + end.name)
-
 
 @app.route('/')
 def point():
@@ -141,32 +141,42 @@ def point():
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('kind', nargs=-1)
-@click.option('--host', default='127.0.0.1', show_default=True)
-@click.option('--port', default=5000, show_default=True)
+@click.argument('menu', nargs=-1)
+@click.option('--path', default=config.path, show_default=True)
+@click.option('--port', default=config.port, show_default=True)
+@click.option('--host', default=config.host, show_default=True)
 @click.option('--user', default=OPTS['user'], show_default=True)
 @click.option('--pass', default=OPTS['pass'], show_default=True)
-@click.option('--debug / --no-debug', default=False, show_default=True)
-def main(kind, **opts):
+@click.option('--debug', is_flag=True, default=False, show_default=True)
+@click.option('--reload', 'use_reloader', is_flag=True, default=False, show_default=True)
+def main(menu, **opts):
     """
     Run the web app to merge, stream, and render online text flow events. Post
     events at /post. Send events thru a websocket at /send instead of posting
     separate requests. Listen to the event stream at /data. Browse at /.
 
-    The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
-    on the command line for all browsers. Set the /menu endpoint for a custom
-    menu in the browser, like /menu/en/de/cs, and empty to reset.
+    The MENU of events to browse by default is ['en', 'de', 'cs']. Change this
+    for all browsers by mentioning other event kinds on the command line. Set
+    the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
+    and empty to reset.
+
+    The --path PATH specifies the mountpoint of the app within the server. It
+    can have the form of 'textflow', 'elitr', 'elitr/monday-seminars', etc.
+    A custom setup of the proxy server is necessary to reflect these properly.
+
+    These settings can also be changed in and provided via the config module.
 
     http://github.com/ELITR/online-text-flow
     """
     global MENU
-    if kind:
-        MENU = list(kind)
+    if menu:
+        MENU = list(menu)
     for key in ['user', 'pass']:
         OPTS[key] = opts[key]
         del opts[key]
     print(' * Opts:', opts)
     print(' * Menu:', MENU)
+    app.register_blueprint(end, url_prefix='/' + opts['path'])
     app.run(**opts)
 
 

@@ -2,7 +2,7 @@
 
 """Online Text Flow Events"""
 
-__copyright__ = "2019"
+__copyright__ = "2020"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
@@ -244,8 +244,8 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
               help='Output the resulting text split into classes by empty lines.')
 @click.option('--timestamps', 'timestamps',is_flag=True, default=False, show_default=True,
               help="Output the real events timestamps as 3rd and 4th "
-			  "space-separated column. The timestamps are approximated by "
-			  "from the input segments by length in characters.")
+	      "space-separated column. The timestamps are approximated by "
+	      "from the input segments by length in characters.")
 @click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
               help='The input is converted from the \'brief text-flow\' to '
               'the \'verbose\' one, a.k.a. the Ota\'s original communication '

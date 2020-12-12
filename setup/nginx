@@ -1,0 +1,81 @@
+# /etc/nginx/sites-available/textflow
+
+# sudo nginx -t
+# sudo nginx -s reload
+
+server {
+    listen 80;
+    server_name quest.ms.mff.cuni.cz;
+
+    ########
+    
+    location = /textflow { rewrite ^ /textflow/; }
+    location /textflow { try_files $uri @textflow; }
+    location @textflow {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:5000;
+    }
+
+    location /textflow/send {
+        include proxy_params;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_pass http://127.0.0.1:5000/textflow/send;
+    }
+
+    ########
+    
+    location = /textflow/1 { rewrite ^ /textflow/1/; }
+    location /textflow/1 { try_files $uri @textflow_1; }
+    location @textflow_1 {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:5001;
+    }
+
+    location /textflow/1/send {
+        include proxy_params;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_pass http://127.0.0.1:5001/textflow/1/send;
+    }
+
+    ########
+    
+    location = /elitr { rewrite ^ /elitr/; }
+    location /elitr { try_files $uri @elitr; }
+    location @elitr {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:6000;
+    }
+
+    location /elitr/send {
+        include proxy_params;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_pass http://127.0.0.1:6000/elitr/send;
+    }
+
+    ########
+    
+    location = /elitr/monday-seminars { rewrite ^ /elitr/monday-seminars/; }
+    location /elitr/monday-seminars { try_files $uri @elitr_monday_seminars; }
+    location @elitr_monday_seminars {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:6002;
+    }
+
+    location /elitr/monday-seminars/send {
+        include proxy_params;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_pass http://127.0.0.1:6002/elitr/monday-seminars/send;
+    }
+}
