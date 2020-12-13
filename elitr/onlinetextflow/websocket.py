@@ -24,19 +24,19 @@ async def broadcast(message):
         await queue.put(message)
 
 
-@app.route('/')
+@app.route('/elitr/debug/')
 async def index():
-    return await render_template('windex.html')
+    return await render_template('websocket.html')
 
 
-@app.websocket('/ws')
+@app.websocket('/elitr/debug/ws')
 async def ws():
     while True:
         data = await websocket.receive()
         await websocket.send(f"echo {data}")
 
 
-@app.websocket('/api/v2/ws')
+@app.websocket('/elitr/debug/api/v2/ws')
 @collect_websocket
 async def ws_v2(queue):
     while True:
@@ -44,6 +44,5 @@ async def ws_v2(queue):
         await websocket.send(data)
 
 
-
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=6003)

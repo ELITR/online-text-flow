@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ps -o pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]'
+ps -o pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]' | cut -f 1 -d ' ' | xargs kill

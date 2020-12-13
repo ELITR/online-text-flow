@@ -9,7 +9,7 @@
     <ul></ul>
     <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function() {
-        var es = new EventSource('/sse');
+        var es = new EventSource('/textflow/sse');
         es.onmessage = function (event) {
           var messages_dom = document.getElementsByTagName('ul')[0];
           var message_dom = document.createElement('li');
@@ -19,7 +19,7 @@
         };
 
         document.getElementById('send').onclick = function() {
-          fetch('/', {
+          fetch('/textflow/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

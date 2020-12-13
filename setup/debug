@@ -1,0 +1,14 @@
+#!/bin/bash
+
+setup=`dirname $0`
+
+sudo ln -i $setup/nginx /etc/nginx/sites-available/nginx
+sudo ln -i -s /etc/nginx/sites-available/nginx /etc/nginx/sites-enabled/nginx
+
+sudo nginx -s reload
+
+cd $setup/../logs
+
+python ../elitr/onlinetextflow/websocket.py | tee 6003.log
+
+cd - > /dev/null

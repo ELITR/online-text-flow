@@ -171,12 +171,13 @@ def main(menu, **opts):
     global MENU
     if menu:
         MENU = list(menu)
-    for key in ['user', 'pass']:
+    for key in ['user', 'pass', 'path']:
         OPTS[key] = opts[key]
         del opts[key]
+    print(' * Path:', OPTS['path'])
     print(' * Opts:', opts)
     print(' * Menu:', MENU)
-    app.register_blueprint(end, url_prefix='/' + opts['path'])
+    app.register_blueprint(end, url_prefix='/' + OPTS['path'])
     app.run(**opts)
 
 

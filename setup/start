@@ -1,13 +1,14 @@
 #!/bin/bash
 
 setup=`dirname $0`
+logs=`dirname $setup`/logs
 
 sudo ln -i $setup/nginx /etc/nginx/sites-available/nginx
 sudo ln -i -s /etc/nginx/sites-available/nginx /etc/nginx/sites-enabled/nginx
 
 sudo nginx -s reload
 
-cd $setup/../logs
+cd $logs
 
 nohup online-text-flow server --path textflow   --port 5000          > 5000.log 2>&1 &
 nohup online-text-flow server --path textflow/1 --port 5001 en de cs > 5001.log 2>&1 &
@@ -18,6 +19,12 @@ nohup online-text-flow server --path elitr                 --port 6000 > 6000.lo
 nohup online-text-flow server --path elitr/sg1             --port 6001 > 6001.log 2>&1 &
 nohup online-text-flow server --path elitr/monday-seminars --port 6002 > 6002.log 2>&1 &
 
-head *.log
+sleep 1
 
-cd -
+cd - > /dev/null
+
+echo
+
+head $logs/[56]00[0-3].log
+
+echo

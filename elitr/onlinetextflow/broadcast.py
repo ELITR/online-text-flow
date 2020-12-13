@@ -35,13 +35,12 @@ class ServerSentEvent:
         return message.encode('utf-8')
 
 
-
-@app.route('/', methods=['GET'])
+@app.route('/textflow/', methods=['GET'])
 async def index():
-    return await render_template('bindex.html')
+    return await render_template('broadcast.html')
 
 
-@app.route('/', methods=['POST'])
+@app.route('/textflow/', methods=['POST'])
 async def broadcast():
     data = await request.get_json()
     for queue in app.clients:
@@ -49,7 +48,7 @@ async def broadcast():
     return jsonify(True)
 
 
-@app.route('/sse')
+@app.route('/textflow/sse')
 async def sse():
     queue = asyncio.Queue()
     app.clients.add(queue)
