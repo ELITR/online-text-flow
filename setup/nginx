@@ -10,6 +10,52 @@ map $http_upgrade $connection_upgrade {
 
 server {
     listen 80;
+    server_name textflow;
+
+    include /etc/nginx/proxy_params;
+    proxy_buffering off;
+
+    ########
+
+    location /elitr/debug/ {
+           # /elitr/debug  # works as well
+	proxy_pass http://127.0.0.1:6003;
+
+	location /elitr/debug/ws {
+	    proxy_http_version 1.1;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection $connection_upgrade;
+	  # proxy_set_header Host $host; # included above as $http_host
+	}
+    }
+
+    ########
+
+    location /textflow {
+	proxy_pass http://127.0.0.1:5000;
+
+	location /textflow/send {
+	    proxy_http_version 1.1;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection "upgrade";
+	}
+    }
+
+    ########
+
+    location /elitr {
+	proxy_pass http://127.0.0.1:6000;
+
+	location /elitr/send {
+	    proxy_http_version 1.1;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection "upgrade";
+	}
+    }
+}
+
+server {
+    listen 80;
     server_name quest.ms.mff.cuni.cz;
 
     include /etc/nginx/proxy_params;
@@ -17,16 +63,15 @@ server {
 
     ########
 
-    location /elitr/debug {
+    location /elitr/debug/ {
+           # /elitr/debug  # works as well
 	proxy_pass http://127.0.0.1:6003;
 
 	location /elitr/debug/ws {
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
 	    proxy_set_header Connection $connection_upgrade;
-	    # proxy_set_header Connection "upgrade";
-	    # proxy_set_header Host $host;
-	    # proxy_set_header Host $http_host;
+	  # proxy_set_header Host $host; # included above as $http_host
 	}
     }
 
