@@ -3,6 +3,25 @@
 # sudo nginx -t
 # sudo nginx -s reload
 
+# https://nginx.org/en/docs/http/ngx_http_core_module.html#location
+#
+#   If a location is defined by a prefix string that ends with the
+#   slash character, and requests are processed by one of proxy_pass,
+#   fastcgi_pass, uwsgi_pass, scgi_pass, memcached_pass, or grpc_pass,
+#   then the special processing is performed. In response to a request
+#   with URI equal to this string, but without the trailing slash, a
+#   permanent redirect with the code 301 will be returned to the
+#   requested URI with the slash appended. If this is not desired, an
+#   exact match of the URI and location could be defined like this:
+#
+#   location /user/ {
+#       proxy_pass http://user.example.com;
+#    }
+#
+#   location = /user {
+#       proxy_pass http://login.example.com;
+#   }
+
 map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -10,142 +29,102 @@ map $http_upgrade $connection_upgrade {
 
 server {
     listen 80;
-    server_name textflow;
+    server_name quest.ms.mff.cuni.cz textflow;
 
     include /etc/nginx/proxy_params;
     proxy_buffering off;
 
     ########
 
-    location /elitr/debug/ {
-           # /elitr/debug  # works as well
-	proxy_pass http://127.0.0.1:6003;
-
-	location /elitr/debug/ws {
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	  # proxy_set_header Host $host; # included above as $http_host
-	}
-    }
-
-    ########
-
-    location /textflow {
+    location /textflow/ {
 	proxy_pass http://127.0.0.1:5000;
 
 	location /textflow/send {
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
-	}
-    }
-
-    ########
-
-    location /elitr {
-	proxy_pass http://127.0.0.1:6000;
-
-	location /elitr/send {
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
-	}
-    }
-}
-
-server {
-    listen 80;
-    server_name quest.ms.mff.cuni.cz;
-
-    include /etc/nginx/proxy_params;
-    proxy_buffering off;
-
-    ########
-
-    location /elitr/debug/ {
-           # /elitr/debug  # works as well
-	proxy_pass http://127.0.0.1:6003;
-
-	location /elitr/debug/ws {
+	    proxy_pass http://127.0.0.1:5000;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
 	    proxy_set_header Connection $connection_upgrade;
-	  # proxy_set_header Host $host; # included above as $http_host
 	}
     }
 
-    ########
-
-    location /textflow {
-	proxy_pass http://127.0.0.1:5000;
-
-	location /textflow/send {
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
-	}
-    }
-
-    location /textflow/1 {
+    location /textflow/1/ {
 	proxy_pass http://127.0.0.1:5001;
 
 	location /textflow/1/send {
+	    proxy_pass http://127.0.0.1:5001;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 
-    location /textflow/2 {
+    location /textflow/2/ {
 	proxy_pass http://127.0.0.1:5002;
 
 	location /textflow/2/send {
+	    proxy_pass http://127.0.0.1:5002;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 
-    location /textflow/3 {
+    location /textflow/3/ {
 	proxy_pass http://127.0.0.1:5003;
 
 	location /textflow/3/send {
+	    proxy_pass http://127.0.0.1:5003;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 
     ########
 
-    location /elitr {
+    location /elitr/ {
 	proxy_pass http://127.0.0.1:6000;
 
 	location /elitr/send {
+	    proxy_pass http://127.0.0.1:6000;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 
-    location /elitr/sg1 {
+    location /elitr/sg1/ {
 	proxy_pass http://127.0.0.1:6001;
 
 	location /elitr/sg1/send {
+	    proxy_pass http://127.0.0.1:6001;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 
-    location /elitr/monday-seminars {
+    location /elitr/monday-seminars/ {
 	proxy_pass http://127.0.0.1:6002;
 
 	location /elitr/monday-seminars/send {
+	    proxy_pass http://127.0.0.1:6002;
 	    proxy_http_version 1.1;
 	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection "upgrade";
+	    proxy_set_header Connection $connection_upgrade;
+	}
+    }
+
+    ########
+
+    location /elitr/debug/ {
+	proxy_pass http://127.0.0.1:6003;
+
+	location /elitr/debug/ws {
+	    proxy_pass http://127.0.0.1:6003;
+	    proxy_http_version 1.1;
+	    proxy_set_header Upgrade $http_upgrade;
+	    proxy_set_header Connection $connection_upgrade;
 	}
     }
 }

@@ -8,7 +8,7 @@
     <button>Send</button>
     <ul></ul>
     <script type="text/javascript">
-      var ws = new WebSocket('ws://' + document.domain + ':' + location.port + '/elitr/debug/ws');
+      var ws = new WebSocket('wss://' + document.domain + ':' + location.port + '/elitr/debug/ws');
       ws.onmessage = function (event) {
         var messages_dom = document.getElementsByTagName('ul')[0];
         var message_dom = document.createElement('li');
