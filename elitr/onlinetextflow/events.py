@@ -243,23 +243,19 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
 @click.option('-t', '--text', 'mode', flag_value='-t',
               help='Output the resulting text split into classes by empty lines.')
 @click.option('--timestamps', 'timestamps',is_flag=True, default=False, show_default=True,
-              help="Output the real events timestamps as 3rd and 4th "
-	      "space-separated column. The timestamps are approximated by "
-	      "from the input segments by length in characters.")
+              help='Output the real events timestamps as the 3rd and 4th '
+	      'space-separated column. The timestamps are approximated '
+	      'from the input segments by length in characters.')
 @click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
-              help='The input is converted from the \'brief text-flow\' to '
-              'the \'verbose\' one, a.k.a. the Ota\'s original communication '
-              'protocol with repeated sentences.')
+              help='Input is converted from the "brief" text flow to the '
+              'original "verbose" protocol with repeated sentences.')
 def main(lang, mode, timestamps, brief):
     """
     Turn data from speech recognition into text for machine translation. The
     emitted events are classified sentences rather than text chunks evolving
     in time and disturbing the flow. The complete text is emitted just once.
 
-	Parameters:
-
-	[LANG] is the source language passed to MosesSentenceSplitter. Default
-	is en.
+    LANG is the language code passed to MosesSentenceSplitter, 'en' if none.
     """
     opts[mode] = mode
     try:

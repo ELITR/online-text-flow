@@ -51,8 +51,6 @@ def post(event, url):
             event['code'] = resp.status_code
         if opts['verbose']:
             print(json.dumps(event), flush=True)
-#        else:
-#            print(".", end="", flush=True)
         return empty(kind, uniq + 1)
     else:
         return empty(kind, uniq)
@@ -75,7 +73,6 @@ def client(kind, url):
     kind = re.sub('\W', '-', " ".join(kind.split()))
     event = empty(kind)
     for line in wrapped_input_stream(sys.stdin):
-        #print(line,flush=True,end="")
         if line[:1] == "{":
             event = post(event, url)
             event['data'] = json.loads(line)
@@ -100,14 +97,13 @@ def client(kind, url):
 @click.option('-v', '--verbose', is_flag=True, default=False, show_default=True,
               help='Print the JSON event and the response code from the server.')
 @click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
-              help='The input is converted from the \'brief text-flow\' to '
-              'the \'verbose\' one, a.k.a. the Ota\'s original communication '
-              'protocol with repeated sentences.')
+              help='Input is converted from the "brief" text flow to the '
+              'original "verbose" protocol with repeated sentences.')
 def main(kind, url, verbose, brief):
     """
-    Emit data from the standard input as the KIND of events to the URL/send
-    websocket or the URL/post endpoint, depending on the scheme of the URL.
-    KIND is empty and URL is ws://127.0.0.1:5000 by default.
+    Emit data as the KIND of events to the URL/send websocket or the URL/post
+    endpoint, depending on the scheme of the URL. Consider websockets over
+    recurring requests. KIND is '' and URL is ws://127.0.0.1:5000 by default.
 
     If an input line contains two integers as artificial timestamps and then
     some text, an event is being built from the consecutive lines while the
@@ -121,12 +117,10 @@ def main(kind, url, verbose, brief):
     progress and are printed to the standard error. Use the --verbose option
     to observe the implementation details and the semantics of the events.
     """
-    if url.startswith('http'):
-        print('%s Error: Invalid protocol used. http:// and https:// URL '
-            'are disabled. Use ws:// or wss://. Terminating.''' % sys.argv[0], 
-            file=sys.stderr)
-        sys.exit(1)
     opts['websocket'] = url.split(':')[0] in ['ws', 'wss']
+    if not opts['websocket']:
+        print('Consider using %s/send websockets instead of %s/post requests :)'
+              % (url.replace('http', 'ws', 1), url), file=sys.stderr)
     opts['verbose'] = verbose
     opts['brief'] = brief
     try:
