@@ -15,7 +15,7 @@ This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Clic
     
     export PATH=~/.local/bin:$PATH
 
-    git pull        # no need to reinstall due 
+    git pull        # no need to reinstall due
                     # to develop/--editable
 
 You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience.
@@ -118,41 +118,37 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow/server.py), which can be useful if command line parameters cannot be provided via a command line.
+The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow/server.py), which can be useful if application parameters cannot be provided via a command line.
 
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
     Usage: online-text-flow [OPTIONS] COMMAND [ARGS]...
-
+    
       Entry point for the executables of the online-text-flow project. Replace
       the COMMAND from the list below to learn more details.
-
+    
       Try `online-text-flow COMMAND --help` and `online-text-flow-COMMAND -h`.
-
+    
     Options:
       -h, --help  Show this message and exit.
-
+    
     Commands:
-      client      Emit data from the standard input as the KIND of events to
-                  the...
+      client      Emit data as the KIND of events to the URL/send websocket or...
       events      Turn data from speech recognition into text for machine...
-      from_brief  Converts from the brief text-flow into the original one.
+      from_brief  Converts from the brief text flow into the original one.
       server      Run the web app to merge, stream, and render online text flow...
-      to_brief    Converts into the brief text-flow.
+      to_brief    Converts into the brief text flow from the original one.
 
 ### online-text-flow events / [events.py](elitr/onlinetextflow/events.py)
 
     Usage: online-text-flow events [OPTIONS] [LANG]
-
+    
       Turn data from speech recognition into text for machine translation. The
       emitted events are classified sentences rather than text chunks evolving
       in time and disturbing the flow. The complete text is emitted just once.
-
-          Parameters:
-
-          [LANG] is the source language passed to MosesSentenceSplitter. Default
-          is en.
-
+    
+      LANG is the language code passed to MosesSentenceSplitter, 'en' if none.
+    
     Options:
       -l, --line    Output the events as lines of artificial timestamps and text,
                     where specific differences in timestamps group the events and
@@ -161,40 +157,38 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
       -j, --json    Output the events as JSON objects with detailed information
                     about the data, the flow, the text, and other indicators.
       -t, --text    Output the resulting text split into classes by empty lines.
-      --timestamps  Output the real events timestamps as 3rd and 4th space-
-                    separated column. The timestamps are approximated by from the
+      --timestamps  Output the real events timestamps as the 3rd and 4th space-
+                    separated column. The timestamps are approximated from the
                     input segments by length in characters.  [default: False]
-      -b, --brief   The input is converted from the 'brief text-flow' to the
-                    'verbose' one, a.k.a. the Ota's original communication
-                    protocol with repeated sentences.  [default: False]
+      -b, --brief   Input is converted from the "brief" text flow to the original
+                    "verbose" protocol with repeated sentences.  [default: False]
       -h, --help    Show this message and exit.
 
 ### online-text-flow client / [client.py](elitr/onlinetextflow/client.py)
 
     Usage: online-text-flow client [OPTIONS] [KIND] [URL]
-
-      Emit data from the standard input as the KIND of events to the URL/send
-      websocket or the URL/post endpoint, depending on the scheme of the URL.
-      KIND is empty and URL is ws://127.0.0.1:5000 by default.
-
+    
+      Emit data as the KIND of events to the URL/send websocket or the URL/post
+      endpoint, depending on the scheme of the URL. Consider websockets over
+      recurring requests. KIND is '' and URL is ws://127.0.0.1:5000 by default.
+    
       If an input line contains two integers as artificial timestamps and then
       some text, an event is being built from the consecutive lines while the
       timestamps increase. The specific difference of timestamps on one line
       classifies the text as "complete", "expected", "incoming", or ignored.
-
+    
       If the data on a line is a JSON object, the event being built is posted,
       then the data object is decorated and posted as an event of its own.
-
+    
       Lines that do not fit the logic are ignored. They do not emit the event in
       progress and are printed to the standard error. Use the --verbose option
       to observe the implementation details and the semantics of the events.
-
+    
     Options:
       -v, --verbose  Print the JSON event and the response code from the server.
                      [default: False]
-      -b, --brief    The input is converted from the 'brief text-flow' to the
-                     'verbose' one, a.k.a. the Ota's original communication
-                     protocol with repeated sentences.  [default: False]
+      -b, --brief    Input is converted from the "brief" text flow to the original
+                     "verbose" protocol with repeated sentences.  [default: False]
       -h, --help     Show this message and exit.
 
 ### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
