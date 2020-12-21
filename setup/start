@@ -19,6 +19,8 @@ nohup online-text-flow server --path elitr                 --port 6000 > 6000.lo
 nohup online-text-flow server --path elitr/sg1             --port 6001 > 6001.log 2>&1 &
 nohup online-text-flow server --path elitr/monday-seminars --port 6002 > 6002.log 2>&1 &
 
+nohup python3 ../elitr/onlinetextflow/websocket.py > 6003.log 2>&1 &
+
 sleep 1
 
 cd - > /dev/null
