@@ -1,7 +1,7 @@
 # online-text-flow
 Online event streaming to improve data and text flows
 
-[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief format](#brief-format)
+[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief Format](#brief-format)
 
 ## Setup
 
@@ -28,6 +28,20 @@ You can now run the following, where `online-text-flow COMMAND` and `online-text
     online-text-flow-events -h
     online-text-flow-client -h
     online-text-flow-server -h
+
+The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as well as the [`start`](setup/start) and [`stop`](setup/stop) scripts. When activated, multiple apps are deployed and available as follows:
+
+- https://quest.ms.mff.cuni.cz/textflow/
+- https://quest.ms.mff.cuni.cz/textflow/1/
+- https://quest.ms.mff.cuni.cz/textflow/2/
+- https://quest.ms.mff.cuni.cz/textflow/3/
+
+- https://quest.ms.mff.cuni.cz/elitr/
+- https://quest.ms.mff.cuni.cz/elitr/sg1/
+- https://quest.ms.mff.cuni.cz/elitr/monday-seminars/
+- https://quest.ms.mff.cuni.cz/elitr/debug/
+
+Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/textflow/1`, `ws://quest.ms.mff.cuni.cz/elitr`, etc. for streaming up the data to the server with the client via websockets.
 
 ## Quick Tips
 
@@ -89,9 +103,14 @@ The code is organized into a Python package of the following structure:
                 __init__.py
                 events.py
                 client.py
+                config.py
                 server.py
                 index.html
                 login.html
+        setup/
+            nginx
+            start
+            stop
 
 The [`setup.py`](setup.py) defines a namespace package `elitr` where independent project distributions can be plugged in. Reuse the exact same [`elitr/__init__.py`](elitr/__init__.py) and similar [`setup.py`](setup.py) in your plug-in project.
 
@@ -99,6 +118,8 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
 
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
+
+The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow/server.py), which can be useful if command line parameters cannot be provided via a command line.
 
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
@@ -181,29 +202,38 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
 
 ### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
 
-    Usage: online-text-flow server [OPTIONS] [KIND]...
+    Usage: online-text-flow server [OPTIONS] [MENU]...
     
       Run the web app to merge, stream, and render online text flow events. Post
       events at /post. Send events thru a websocket at /send instead of posting
       separate requests. Listen to the event stream at /data. Browse at /.
     
-      The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
-      on the command line for all browsers. Set the /menu endpoint for a custom
-      menu in the browser, like /menu/en/de/cs, and empty to reset.
+      The MENU of events to browse by default is ['en', 'de', 'cs']. Change this
+      for all browsers by mentioning other event kinds on the command line. Set
+      the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
+      and empty to reset.
+    
+      The --path PATH specifies the mountpoint of the app within the server. It
+      can have the form of 'textflow', 'elitr', 'elitr/monday-seminars', etc. A
+      custom setup of the proxy server is necessary to reflect these properly.
+    
+      These settings can also be changed in and provided via the config module.
     
       http://github.com/ELITR/online-text-flow
     
     Options:
-      --host TEXT           [default: 127.0.0.1]
-      --port INTEGER        [default: 5000]
-      --user TEXT           [default: *****]
-      --pass TEXT           [default: *****]
-      --debug / --no-debug  [default: False]
-      -h, --help            Show this message and exit.
+      --path TEXT     [default: textflow]
+      --port INTEGER  [default: 5000]
+      --host TEXT     [default: 127.0.0.1]
+      --user TEXT     [default: *****]
+      --pass TEXT     [default: *****]
+      --debug         [default: False]
+      --reload        [default: False]
+      -h, --help      Show this message and exit.
 
 ### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
 
-The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/textflow/menu/en/de/cs`, and empty `/textflow/menu` to reset.
+The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/menu/en/de/cs`, and empty `/menu` to reset.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
@@ -345,7 +375,7 @@ There are `from_brief` and `to_brief` entry points to convert between them. `cli
 
 The difference is illustrated here:
 
-**Original**
+### Original
 
 ```
 (p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en  < data/en.txt  | head -n 20
@@ -371,7 +401,7 @@ The difference is illustrated here:
 100 110 You should.
 ```
 
-**Brief**
+### Brief
 
 ```
 (p3) d@y:~/Plocha/elitr/cruise-control/online-text-flow$ online-text-flow events en -b < data/en.txt  | head -n 20
