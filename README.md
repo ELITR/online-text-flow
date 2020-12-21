@@ -29,19 +29,18 @@ You can now run the following, where `online-text-flow COMMAND` and `online-text
     online-text-flow-client -h
     online-text-flow-server -h
 
-The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as well as the [`start`](setup/start) and [`stop`](setup/stop) scripts. When activated, multiple apps are deployed and available as follows:
+The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as well as the [`start`](setup/start) and [`stop`](setup/stop) scripts. When activated, **multiple apps** are deployed at **different mountpoints** and available as follows:
 
 - https://quest.ms.mff.cuni.cz/textflow/
 - https://quest.ms.mff.cuni.cz/textflow/1/
 - https://quest.ms.mff.cuni.cz/textflow/2/
 - https://quest.ms.mff.cuni.cz/textflow/3/
-
 - https://quest.ms.mff.cuni.cz/elitr/
 - https://quest.ms.mff.cuni.cz/elitr/sg1/
 - https://quest.ms.mff.cuni.cz/elitr/monday-seminars/
 - https://quest.ms.mff.cuni.cz/elitr/debug/
 
-Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/textflow/1`, `ws://quest.ms.mff.cuni.cz/elitr`, etc. for streaming up the data to the server with the client via websockets.
+Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--serverpy) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints. 
 
 ## Quick Tips
 
@@ -170,8 +169,6 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
                     protocol with repeated sentences.  [default: False]
       -h, --help    Show this message and exit.
 
-
-
 ### online-text-flow client / [client.py](elitr/onlinetextflow/client.py)
 
     Usage: online-text-flow client [OPTIONS] [KIND] [URL]
@@ -237,9 +234,9 @@ The kind of events to browse by default is ['en', 'de', 'cs']. Change this for a
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
-Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are hard-coded just to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/post` and `/data` endpoints once they learn they exist!
+Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [config.py](elitr/onlinetextflow/config.py) only to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/send`, `/post`, and `/data` endpoints once they learn they exist!
 
-To log in without the need to fill in the login form, open the `/textflow/login?auth=USERNAME:PASSWORD` endpoint.
+To log in without the need to fill in the login form, open the `/login?auth=USERNAME:PASSWORD` endpoint.
 
 ## Example
 
