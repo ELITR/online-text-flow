@@ -2,7 +2,14 @@
 
 <title>ELITR Online Text Flow</title>
 
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
 <style>
+  :root {
+    --elitrblue: rgb(10, 80, 225);
+    margin: 16px;
+  }
+
   .row {
     display: flex;
     flex-direction: row;
@@ -18,10 +25,16 @@
   .flash {
     background-color: orange;
     color: white;
-    font-family: sans serif;
+  }
+
+  .button {
+    background-color: var(--elitrblue);
+    color: white;
+    margin: 16px 0px;
   }
 
   a {
+    color: var(--elitrblue);
     text-decoration: none;
   }
 
@@ -30,26 +43,14 @@
   }
 </style>
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div id="flash" class="flash row">
-  <div class="flash column">
-    {% for message in messages %}
-    <div>{{ message }}</div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-{% endwith %}
-
 <div class="row">
   <div class="column">
     <h1>ELITR <a href="https://github.com/ELITR/online-text-flow">Online Text Flow</a></h1>
-    <form action="{{ login }}" method="POST">
+    <form action="{{ login }}" method="POST" class="w3-container">
       <div>
-        <input type="username" name="user" placeholder="username">
-        <input type="password" name="pass" placeholder="password">
-        <input type="submit" value="Log In">
+        <input type="username" name="user" placeholder="username" class="w3-input">
+        <input type="password" name="pass" placeholder="password" class="w3-input">
+        <button class="button w3-btn">Log In!</button>
       </div>
     </form>
   </div>
@@ -60,11 +61,23 @@
   </div>
 </div>
 
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div id="flash" class="row">
+  <div class="column w3-half">
+    {% for message in messages %}
+    <div class="flash w3-panel w3-card w3-center">{{ message }}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endwith %}
+
 <script>
   setTimeout(function () {
       elem = document.getElementById("flash");
       if (elem) {
         elem.style.display = "none";
       }
-    }, 2000);
+    }, 3000);
 </script>

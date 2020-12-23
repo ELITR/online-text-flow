@@ -2,14 +2,21 @@
 
 <title>ELITR Online Text Flow</title>
 
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <style>
   :root {
     --elitrblue: rgb(10, 80, 225);
+    margin: 8px;
+    overflow-y: scroll;
+    scroll-behavior: auto; /*!!!*/
   }
 
   .row {
     display: flex;
     flex-direction: row;
+    overflow: hidden;
   }
 
   .column {
@@ -18,6 +25,7 @@
     flex-direction: column;
     justify-content: flex-end;
     padding-right: 10px;
+    position: relative; /*!!!*/
   }
 
   .column.hide {
@@ -46,7 +54,7 @@
   .flow {
     display: table;
     table-layout: fixed;
-    width: 100%; // !!!
+    width: 100%; /*!!!*/
   }
 
   .data {
@@ -101,10 +109,6 @@
     margin: 0px 0px 20px 0px;
   }
 
-  body {
-    overflow-y: scroll;
-  }
-
   .bar {
     position: fixed;
     right: 0px;
@@ -121,10 +125,7 @@
     margin: 5px 10px;
     padding: 1px;
     height: 30px;
-    font-family: inherit;
-    font-size: inherit;
     font-weight: bold;
-    position: relative;
     text-transform: uppercase;
     outline: none;
     color: white;
@@ -138,6 +139,12 @@
 
   #content {
     padding-right: 80px;
+    line-height: 1.2;
+  }
+
+  #refresh {
+    position: fixed;
+    bottom: 10px;
   }
 </style>
 
@@ -147,6 +154,7 @@
    <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="75" height="67">
  </a>
  <div id="control"></div>
+ <div id="refresh"></div>
 </div>
 
 <script>
@@ -169,14 +177,22 @@
 
   var code = '';
   for (let kind of menu) {
-    code += '<button onclick="toggle(this)" type="button" name="' + kind +
+    code += '<button onclick="control(this)" class="w3-btn" name="' + kind +
                   '" id="button-' + kind + '">' + kind + '</button>';
   }
   document.getElementById("control").innerHTML = code;
 
-  var scroll = true;
+  var code = '<button onclick="refresh()" class="w3-btn" id="scroll">' +
+             '<i id="iconic" class="fa fa-refresh"></i></button>';
+  document.getElementById("refresh").innerHTML = code;
+
+  var scroll = document.getElementById("scroll");
+  var iconic = document.getElementById("iconic");
+
   var viewer = new IntersectionObserver(function (ents) {
-      scroll = ents.some(ent => ent.isIntersecting);
+      let none = ! ents.some(ent => ent.isIntersecting);
+      scroll.classList.toggle("hide", none);
+      iconic.classList.toggle("w3-spin", none);
     }, {threshold: [0.0]});
   for (let elem of document.getElementsByClassName("expected")) {
     viewer.observe(elem);
@@ -212,12 +228,6 @@
     wind.document.close();
   }
 
-  var adjust = function (expected, incoming, flexible, height) {
-    var fill = expected.scrollHeight + incoming.scrollHeight;
-    var high = (height > fill) ? (height - fill) : 0;
-    flexible.style.height = high + "px";
-  }
-
   var listen = {};
 
   for (let kind of menu) {
@@ -227,18 +237,21 @@
     let incoming = document.getElementById("incoming-" + kind);
     let flexible = document.getElementById("flexible-" + kind);
 
+    let column = complete.parentElement.parentElement;
     let height = parseInt(window.getComputedStyle(flexible)
                                 .getPropertyValue("height"));
 
-    adjust(expected, incoming, flexible, height);
+    flexible.style.height = (height - expected.scrollHeight) + "px";
 
     listen[kind] = function (event) {
 
       var json = JSON.parse(event.data);
+      var diff = complete.scrollHeight;
 
       for (let data of json.text.complete) {
         complete.appendChild(node(data));
       }
+      diff = complete.scrollHeight - diff;
 
       expected.innerHTML = '';
       for (let data of json.text.expected) {
@@ -250,9 +263,13 @@
         incoming.appendChild(node(data));
       }
 
-      adjust(expected, incoming, flexible, height);
+      var high = height - expected.scrollHeight - incoming.scrollHeight;
 
-      if (scroll) {
+      flexible.style.height = (high > 0 ? high : 0) + "px";
+
+      if (! scroll.classList.contains("hide")) {
+        let top = parseInt(column.style.top) || 0;
+        column.style.top = (top + diff - (high < 0 ? high : 0)) + "px";
         let canvas = document.documentElement;
         canvas.scroll(0, canvas.scrollHeight);
       }
@@ -278,7 +295,7 @@
     }
   }
 
-  var toggle = function (elem) {
+  var control = function (elem) {
     let kind = elem.name;
     elem.classList.toggle("hide");
     document.getElementById("column-" + kind).classList.toggle("hide");
@@ -296,4 +313,24 @@
     }
     sessionStorage.setItem("hide", JSON.stringify(hide));
   }
+
+  var refresh = function () {
+    scroll.classList.toggle("hide");
+    iconic.classList.toggle("w3-spin");
+    if (! scroll.classList.contains("hide")) {
+      let canvas = document.documentElement;
+      canvas.scroll(0, canvas.scrollHeight);
+    }
+  }
+
+  var cols = document.getElementsByClassName("column");
+  setInterval(function () {
+      for (let column of cols) {
+        let top = parseInt(column.style.top) || 0;
+        if (top > 0) {
+          top = top - 8;
+          column.style.top = (top > 0 ? top : 0) + "px";
+        }
+      }
+    }, 40);
 </script>
