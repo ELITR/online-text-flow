@@ -150,11 +150,11 @@
 
 <div class="row" id="content"></div>
 <div class="bar">
- <a href="https://elitr.eu/" target="_blank">
-   <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="75" height="67">
- </a>
- <div id="control"></div>
- <div id="refresh"></div>
+  <a href="https://elitr.eu/" target="_blank">
+    <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="75" height="67">
+  </a>
+  <div id="control"></div>
+  <div id="refresh"></div>
 </div>
 
 <script>
@@ -188,18 +188,8 @@
 
   var scroll = document.getElementById("scroll");
   var iconic = document.getElementById("iconic");
-
-  var viewer = new IntersectionObserver(function (ents) {
-      let none = ! ents.some(ent => ent.isIntersecting);
-      scroll.classList.toggle("hide", none);
-      iconic.classList.toggle("w3-spin", none);
-    }, {threshold: [0.0]});
-  for (let elem of document.getElementsByClassName("expected")) {
-    viewer.observe(elem);
-  }
-  for (let elem of document.getElementsByClassName("incoming")) {
-    viewer.observe(elem);
-  }
+  var canvas = document.documentElement;
+  var review = 0;
 
   var events = new EventSource("{{ data }}");
 
@@ -246,6 +236,8 @@
     listen[kind] = function (event) {
 
       var json = JSON.parse(event.data);
+
+      var over = canvas.scrollHeight - canvas.scrollTop - canvas.clientHeight; // height
       var diff = complete.scrollHeight;
 
       for (let data of json.text.complete) {
@@ -267,11 +259,16 @@
 
       flexible.style.height = (high > 0 ? high : 0) + "px";
 
-      if (! scroll.classList.contains("hide")) {
+      if (over < height) {
         let top = parseInt(column.style.top) || 0;
         column.style.top = (top + diff - (high < 0 ? high : 0)) + "px";
-        let canvas = document.documentElement;
         canvas.scroll(0, canvas.scrollHeight);
+        scroll.classList.toggle("hide", false);
+        iconic.classList.toggle("w3-spin", false);
+      }
+      else {
+        scroll.classList.toggle("hide", true);
+        iconic.classList.toggle("w3-spin", true);
       }
     }
   }
@@ -317,8 +314,11 @@
   var refresh = function () {
     scroll.classList.toggle("hide");
     iconic.classList.toggle("w3-spin");
-    if (! scroll.classList.contains("hide")) {
-      let canvas = document.documentElement;
+    if (scroll.classList.contains("hide")) {
+      canvas.scroll(0, review);
+    }
+    else {
+      review = canvas.scrollTop;
       canvas.scroll(0, canvas.scrollHeight);
     }
   }
