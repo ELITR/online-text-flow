@@ -81,8 +81,8 @@
 
   .idx {
     text-align: right;
-    padding-right: 12px;
-    width: 36px;
+    padding-right: 1ex;
+    width: 5ex;
   }
 
   .idx:after {
@@ -237,7 +237,7 @@
 
       var json = JSON.parse(event.data);
 
-      var over = canvas.scrollHeight - canvas.scrollTop - canvas.clientHeight; // height
+      var over = canvas.scrollHeight - canvas.scrollTop - canvas.clientHeight;
       var diff = complete.scrollHeight;
 
       for (let data of json.text.complete) {
@@ -260,8 +260,11 @@
       flexible.style.height = (high > 0 ? high : 0) + "px";
 
       if (over < height) {
-        let top = parseInt(column.style.top) || 0;
-        column.style.top = (top + diff - (high < 0 ? high : 0)) + "px";
+        if (canvas.scrollHeight > canvas.clientHeight ||
+            column.parentElement.scrollHeight > column.scrollHeight) {
+          let top = parseInt(column.style.top) || 0;
+          column.style.top = (top + diff - (high < 0 ? high : 0)) + "px";
+        }
         canvas.scroll(0, canvas.scrollHeight);
         scroll.classList.toggle("hide", false);
         iconic.classList.toggle("w3-spin", false);
