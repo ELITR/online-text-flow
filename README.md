@@ -40,7 +40,9 @@ The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as w
 - https://quest.ms.mff.cuni.cz/elitr/monday-seminars/
 - https://quest.ms.mff.cuni.cz/elitr/debug/
 
-Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--serverpy) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints. 
+Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--serverpy) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints.
+
+The design features of the frontend are described in the [index](#elitronlinetextflowindexhtml) and [login](#elitronlinetextflowloginhtml) sections.
 
 ## Quick Tips
 
@@ -77,7 +79,7 @@ Run the server remotely and post the data to it from your client:
     cat data/en.txt | online-text-flow events | online-text-flow client en ws://quest.ms.mff.cuni.cz:5000/textflow
     cat data/cs.txt | online-text-flow events | online-text-flow client cs ws://quest.ms.mff.cuni.cz:5000/textflow
 
-View the event stream of the data and sedn/post to the endpoint:
+View the event stream of the data and send/post to the endpoint:
 
 - http://quest.ms.mff.cuni.cz:5000
 - http://quest.ms.mff.cuni.cz:5000/textflow
@@ -225,6 +227,11 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
 ### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
 
 The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/menu/en/de/cs`, and empty `/menu` to reset.
+
+The selected event flows form distinct columns of indexed text snippets on the main screen of the application. There is a menu bar on the right containing further control buttons. The interactivity features of the frontend comprise:
+- **Exclude** an event flow from the display by clicking a corresponding button in the menu. **Include** it likewise. The selection is remembered per browser tab and survives a reload of the page. One can thus easily clear the history of the event flows, yet retain the preferred kinds of events in display.
+- Event flows are automatically scrolled and aligned at the bottom page as new text is being rendered. Click the refresh button in the lower right corner of the screen to scroll to a previous **Review** position and turn the auto scrolling off. Use other user scrolling methods for this, too, and move up or down the page as needed. Click on the refresh button again to remember the review position and **Resume** automatic scrolling and event flow alignment.
+- **Inspect** any desired text snippet by clicking on it. The text snippet will be copied over into a new tab for easier reference.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
