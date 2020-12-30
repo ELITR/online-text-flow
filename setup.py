@@ -10,7 +10,7 @@ else:
 from setuptools import setup, find_packages
 setup(
     name='online-text-flow',
-    version='1.4.0',
+    version='1.4.1',
     url='http://github.com/ELITR/online-text-flow',
     license='GPL',
     author='Otakar Smrz',
@@ -34,7 +34,7 @@ setup(
             'online-text-flow-client=elitr.onlinetextflow.client:main',
             'online-text-flow-server=elitr.onlinetextflow.server:main',
             'online-text-flow-to_brief=elitr.onlinetextflow.to_brief:main',
-	    'online-text-flow-from_brief=elitr.onlinetextflow.from_brief:main',
+            'online-text-flow-from_brief=elitr.onlinetextflow.from_brief:main',
         ],
     },
 )
