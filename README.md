@@ -230,8 +230,8 @@ The kind of events to browse by default is ['en', 'de', 'cs']. Change this for a
 
 The selected event flows form distinct columns of indexed text snippets on the main screen of the application. There is a menu bar on the right containing further control buttons. The interactivity features of the frontend comprise:
 - **Exclude** an event flow from the display by clicking a corresponding button in the menu. **Include** it likewise. The selection is remembered per browser tab and survives a reload of the page. One can thus easily clear the history of the event flows, yet retain the preferred kinds of events in display.
-- Event flows are automatically scrolled and aligned at the bottom page as new text is being rendered. Click the refresh button in the lower right corner of the screen to scroll to a previous **Review** position and turn the auto scrolling off. Use other user scrolling methods for this, too, and move up or down the page as needed. Click on the refresh button again to remember the review position and **Resume** automatic scrolling and event flow alignment.
-- **Inspect** any desired text snippet by clicking on it. The text snippet will be copied over into a new tab for easier reference.
+- Event flows are automatically scrolled and aligned at the bottom of the page as new text is being rendered. Click the refresh button in the lower right corner of the screen to scroll to a previous **Review** position and turn the auto scrolling off. Use other user scrolling methods for this, too, and move up or down the page as needed. Click on the refresh button again to remember the review position and **Resume** automatic scrolling and event flow alignment.
+- **Inspect** any desired text snippet by clicking on it. The snippet will be copied over into a new tab for easier reference.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
