@@ -13,6 +13,10 @@
     scroll-behavior: auto; /*!!!*/
   }
 
+  body {
+    line-height: normal;
+  }
+
   .row {
     display: flex;
     flex-direction: row;
@@ -85,7 +89,7 @@
     width: 5ex;
   }
 
-  .idx:after {
+  .idx::after {
     content: ".";
   }
 
@@ -94,6 +98,12 @@
   }
 
   .trd {
+    cursor: pointer;
+  }
+
+  .empty::before {
+    content: "no events yet";
+    font-style: italic;
   }
 
   h1 {
@@ -139,7 +149,6 @@
 
   #content {
     padding-right: 80px;
-    line-height: 1.2;
   }
 
   #refresh {
@@ -167,7 +176,7 @@
             '<div class="events flow">' +
             '<div class="complete" id="complete-' + kind + '"></div>' +
             '<div class="expected" id="expected-' + kind + '">' +
-            '<em>no events yet</em></div>' +
+            '<div class="empty"></div></div>' +
             '<div class="incoming" id="incoming-' + kind + '"></div>' +
             '<div class="flexible" id="flexible-' + kind + '"></div>' +
             '</div>' +
@@ -295,10 +304,16 @@
     }
   }
 
+  var cols = document.getElementsByClassName("column");
+
   var control = function (elem) {
     let kind = elem.name;
     elem.classList.toggle("hide");
     document.getElementById("column-" + kind).classList.toggle("hide");
+    for (let column of cols) {
+      column.style.top = "0px";
+    }
+    canvas.scroll(0, canvas.scrollHeight);
     let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
     let indx = hide.indexOf(kind);
     if (indx < 0) {
@@ -326,7 +341,6 @@
     }
   }
 
-  var cols = document.getElementsByClassName("column");
   setInterval(function () {
       for (let column of cols) {
         let top = parseInt(column.style.top) || 0;
