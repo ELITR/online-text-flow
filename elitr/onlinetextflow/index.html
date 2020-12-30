@@ -314,6 +314,8 @@
       column.style.top = "0px";
     }
     canvas.scroll(0, canvas.scrollHeight);
+    scroll.classList.toggle("hide", false);
+    iconic.classList.toggle("w3-spin", false);
     let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
     let indx = hide.indexOf(kind);
     if (indx < 0) {
@@ -332,10 +334,10 @@
   var refresh = function () {
     scroll.classList.toggle("hide");
     iconic.classList.toggle("w3-spin");
+    for (let column of cols) {
+      column.style.top = "0px";
+    }
     if (scroll.classList.contains("hide")) {
-      for (let column of cols) {
-	column.style.top = "0px";
-      }
       canvas.scroll(0, review);
     }
     else {
