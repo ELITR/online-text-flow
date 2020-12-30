@@ -333,6 +333,9 @@
     scroll.classList.toggle("hide");
     iconic.classList.toggle("w3-spin");
     if (scroll.classList.contains("hide")) {
+      for (let column of cols) {
+	column.style.top = "0px";
+      }
       canvas.scroll(0, review);
     }
     else {
