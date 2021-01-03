@@ -32,6 +32,8 @@ server {
     server_name quest.ms.mff.cuni.cz textflow;
 
     include /etc/nginx/proxy_params;
+
+    absolute_redirect off;
     proxy_buffering off;
 
     ########
