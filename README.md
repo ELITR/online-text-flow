@@ -212,6 +212,10 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
     
       These settings can also be changed in and provided via the config module.
     
+      The --view URL option will embed the linked video or webpage into the app,
+      as will do requesting the /view/URL endpoint, like /view/http://youtu.be.
+      The scheme is always reset to https, and /view/elitr.eu?s=theaitre works.
+    
       http://github.com/ELITR/online-text-flow
     
     Options:
@@ -220,8 +224,9 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
       --host TEXT     [default: 127.0.0.1]
       --user TEXT     [default: *****]
       --pass TEXT     [default: *****]
-      --debug         [default: False]
-      --reload        [default: False]
+      --view TEXT
+      --debug
+      --reload
       -h, --help      Show this message and exit.
 
 ### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
@@ -232,6 +237,9 @@ The selected event flows form distinct columns of indexed text snippets on the m
 - **Exclude** an event flow from the display by clicking a corresponding button in the menu. **Include** it likewise. The selection is remembered per browser tab and survives a reload of the page. One can thus easily clear the history of the event flows, yet retain the preferred kinds of events in display.
 - Event flows are automatically scrolled and aligned at the bottom of the page as new text is being rendered. Click the refresh button in the lower right corner of the screen to scroll to a previous **Review** position and turn the auto scrolling off. Use other user scrolling methods for this, too, and move up or down the page as needed. Click the refresh button again to remember the review position and **Resume** automatic scrolling and event flow alignment.
 - **Inspect** any desired text snippet by clicking on it. The text will be copied over into a new tab for easier reference.
+
+In order to embed a custom video or webpage into the app, set the `/view` endpoint in the browser with the URL needed, like
+`/view/http://youtu.be` or `/view/elitr.eu?s=theaitre`, and empty to reset. Move or resize the embedded view by dragging its top or bottom margin, respectively. Click the preview button in the side bar to hide and show the video, while its audio can still be listened to.
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 

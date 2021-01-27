@@ -10,7 +10,7 @@ else:
 from setuptools import setup, find_packages
 setup(
     name='online-text-flow',
-    version='1.4.2',
+    version='1.5.0',
     url='http://github.com/ELITR/online-text-flow',
     license='GPL',
     author='Otakar Smrz',

@@ -45,4 +45,4 @@ async def ws_v2(queue):
 
 
 if __name__ == '__main__':
-    app.run(port=6003)
+    app.run(port=7000)

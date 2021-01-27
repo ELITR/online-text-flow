@@ -2,6 +2,3 @@
 
 ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]'
 ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]' | cut -f 1 -d ' ' | xargs kill
-
-ps -xo pid:1,command | grep 'elitr/onlinetextflow' | grep 'websocket.py'
-ps -xo pid:1,command | grep 'elitr/onlinetextflow' | grep 'websocket.py' | cut -f 1 -d ' ' | xargs kill

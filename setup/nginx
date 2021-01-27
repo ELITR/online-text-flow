@@ -39,94 +39,105 @@ server {
     ########
 
     location /textflow/ {
-	proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:5000;
 
-	location /textflow/send {
-	    proxy_pass http://127.0.0.1:5000;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /textflow/send {
+            proxy_pass http://127.0.0.1:5000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     location /textflow/1/ {
-	proxy_pass http://127.0.0.1:5001;
+        proxy_pass http://127.0.0.1:5001;
 
-	location /textflow/1/send {
-	    proxy_pass http://127.0.0.1:5001;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /textflow/1/send {
+            proxy_pass http://127.0.0.1:5001;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     location /textflow/2/ {
-	proxy_pass http://127.0.0.1:5002;
+        proxy_pass http://127.0.0.1:5002;
 
-	location /textflow/2/send {
-	    proxy_pass http://127.0.0.1:5002;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /textflow/2/send {
+            proxy_pass http://127.0.0.1:5002;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     location /textflow/3/ {
-	proxy_pass http://127.0.0.1:5003;
+        proxy_pass http://127.0.0.1:5003;
 
-	location /textflow/3/send {
-	    proxy_pass http://127.0.0.1:5003;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /textflow/3/send {
+            proxy_pass http://127.0.0.1:5003;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     ########
 
     location /elitr/ {
-	proxy_pass http://127.0.0.1:6000;
+        proxy_pass http://127.0.0.1:6000;
 
-	location /elitr/send {
-	    proxy_pass http://127.0.0.1:6000;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /elitr/send {
+            proxy_pass http://127.0.0.1:6000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     location /elitr/sg1/ {
-	proxy_pass http://127.0.0.1:6001;
+        proxy_pass http://127.0.0.1:6001;
 
-	location /elitr/sg1/send {
-	    proxy_pass http://127.0.0.1:6001;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /elitr/sg1/send {
+            proxy_pass http://127.0.0.1:6001;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     location /elitr/monday-seminars/ {
-	proxy_pass http://127.0.0.1:6002;
+        proxy_pass http://127.0.0.1:6002;
 
-	location /elitr/monday-seminars/send {
-	    proxy_pass http://127.0.0.1:6002;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /elitr/monday-seminars/send {
+            proxy_pass http://127.0.0.1:6002;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
+    }
+
+    location /elitr/theaitre/ {
+        proxy_pass http://127.0.0.1:6003;
+
+        location /elitr/theaitre/send {
+            proxy_pass http://127.0.0.1:6003;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 
     ########
 
     location /elitr/debug/ {
-	proxy_pass http://127.0.0.1:6003;
+        proxy_pass http://127.0.0.1:7000;
 
-	location /elitr/debug/ws {
-	    proxy_pass http://127.0.0.1:6003;
-	    proxy_http_version 1.1;
-	    proxy_set_header Upgrade $http_upgrade;
-	    proxy_set_header Connection $connection_upgrade;
-	}
+        location /elitr/debug/ws {
+            proxy_pass http://127.0.0.1:7000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
     }
 }
