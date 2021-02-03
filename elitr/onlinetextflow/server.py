@@ -19,6 +19,7 @@ import asyncio
 import os
 import re
 import click
+from timeit import default_timer as timer
 
 from . import config
 
@@ -59,8 +60,12 @@ async def events():
 async def send():
     while True:
         data = json.loads(await websocket.receive())
+        connected = len(DATA)
+        start = timer()
         for stream in DATA:
             await stream.put(data)
+        end = timer() - start
+        print(f"{connected} clients took {end} seconds")
 
 
 @end.route('/stop', methods=['POST'])
