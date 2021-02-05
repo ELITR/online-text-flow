@@ -19,7 +19,7 @@ nohup online-text-flow server --path elitr                 --port 6000 > 6000.lo
 nohup online-text-flow server --path elitr/sg1             --port 6001 > 6001.log 2>&1 &
 nohup online-text-flow server --path elitr/monday-seminars --port 6002 > 6002.log 2>&1 &
 
-nohup online-text-flow server --view https://www.youtube.com/embed/mI3jh_GPLHc \
+nohup online-text-flow server --view https://www.youtube.com/embed/7cjia0L80dM --debug \
                               --path elitr/theaitre        --port 6003 > 6003.log 2>&1 &
 
 sleep 1

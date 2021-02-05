@@ -10,8 +10,8 @@ This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Clic
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow/
     
-    python3 setup.py develop --user     # either
-    pip3 install --editable --user .    # or
+    python3 setup.py develop        # either
+    pip3 install --editable .       # or
     
     export PATH=~/.local/bin:$PATH
 
@@ -243,7 +243,7 @@ In order to embed a custom video or webpage into the app, set the `/view` endpoi
 
 ### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
 
-Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [config.py](elitr/onlinetextflow/config.py) only to restrict the viewing of the `/` endpoint. Note that anyone can use or misuse the `/send`, `/post`, and `/data` endpoints once they learn they exist!
+Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [config.py](elitr/onlinetextflow/config.py) only to restrict the viewing of the `/` and `/data` endpoints. Note that the `/send` and `/post` endpoints do not require authorization yet, and `/menu` and `/view` are not secured either!
 
 To log in without the need to fill in the login form, open the `/login?auth=USERNAME:PASSWORD` endpoint.
 

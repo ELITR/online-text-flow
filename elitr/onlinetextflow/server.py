@@ -19,7 +19,8 @@ import asyncio
 import os
 import re
 import click
-from timeit import default_timer as timer
+
+from time import perf_counter_ns as nano
 
 from . import config
 
@@ -42,59 +43,65 @@ def normal(path):
 
 
 async def events():
-    stream = asyncio.Queue()
+    queue = asyncio.Queue()
     try:
-        DATA.append(stream)
+        DATA.append(queue)
         while True:
-            data = await stream.get()
+            data = await queue.get()
             show = 'event: %s\n' % data['event'] if 'event' in data else ''
             uniq = data['id']
             data = json.dumps(data['data'])
             code = '%sid: %s\ndata: %s\n\n' % (show, uniq, data)
             yield code.encode()
     except:
-        DATA.remove(stream)
+        DATA.remove(queue)
 
 
 @end.websocket('/send')
 async def send():
+    log = quart.current_app.logger
     while True:
         data = json.loads(await websocket.receive())
-        connected = len(DATA)
-        start = timer()
-        for stream in DATA:
-            await stream.put(data)
-        end = timer() - start
-        print(f"{connected} clients took {end} seconds")
+        secs = nano()
+        line = list(DATA)
+        for queue in line:
+            await queue.put(data)
+        log.debug("#%s sent to %d clients in %d ns",
+                  data['id'], len(line), nano() - secs)
 
 
 @end.route('/stop', methods=['POST'])
 async def stop():
-    for stream in DATA:
-        await stream.put(StopIteration)
-    return json.jsonify({'stop': len(DATA)})
+    line = list(DATA)
+    for queue in line:
+        await queue.put(StopIteration)
+    return json.jsonify({'stop': len(line)})
 
 
 @end.route('/post', methods=['POST'])
 async def post():
     data = await request.json
-    for stream in DATA:
-        await stream.put(data)
-    return json.jsonify({'post': len(DATA)})
+    line = list(DATA)
+    for queue in line:
+        await queue.put(data)
+    return json.jsonify({'post': len(line)})
 
 
 @end.route('/data')
 async def data():
-    response = await quart.make_response(
-        events(),
-        {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Transfer-Encoding': 'chunked',
-        },
-    )
-    response.timeout = None
-    return response
+    if session.get('auth'):
+        response = await quart.make_response(
+            events(),
+            {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Transfer-Encoding': 'chunked',
+            },
+        )
+        response.timeout = None
+        return response
+    else:
+        return quart.redirect(url('.login'))
 
 
 @end.route('/logout')
@@ -122,8 +129,7 @@ async def login():
 
 @end.route('/menu/<path:path>')
 @end.route('/menu/')
-# async
-def menu(path=''):
+async def menu(path=''):
     path = path.replace('/', ' ').split()
     if path:
         session['menu'] = path
@@ -134,8 +140,7 @@ def menu(path=''):
 
 @end.route('/view/<path:path>')
 @end.route('/view/')
-# async
-def view(path=''):
+async def view(path=''):
     if path:
         query = request.query_string.decode()
         session['view'] = normal(path) + ('?' + query if query else '')
@@ -145,12 +150,11 @@ def view(path=''):
 
 
 @end.route('/')
-# async
-def index():
+async def index():
     if session.get('auth'):
-        return quart.render_template('index.html', data=url('.data'),
-                                     menu=session.get('menu', MENU),
-                                     view=session.get('view', OPTS['view']))
+        return await quart.render_template('index.html', data=url('.data'),
+                                           menu=session.get('menu', MENU),
+                                           view=session.get('view', OPTS['view']))
     else:
         return quart.redirect(url('.login'))
 
