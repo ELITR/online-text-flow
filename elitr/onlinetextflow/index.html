@@ -11,8 +11,6 @@
         crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-<script src="static/jquery.ui.touch-punch.min.js"></script>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
       integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
       crossorigin="anonymous">
@@ -297,7 +295,7 @@
       <i class="fas fa-tv"></i>
     </button>
     {% endif %}
-    <button onclick="refresh()" class="w3-btn" id="scroll" title="auto scroll">
+    <button onclick="refresh()" class="w3-btn" id="scroll" title="text scrolling">
       <i id="iconic" class="fas fa-sync"></i>
     </button>
   </div>
@@ -305,11 +303,10 @@
 {% if view %}
 <div id="preview" class="w3-card w3-animate-top">
   <div class="draggable w3-card">
-    <i class="fas fa-expand-alt fa-flip-horizontal"></i>
+    <i class="fas fa-hand-paper"></i>
   </div>
-  <iframe src={{ view | tojson }} frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media;
-                 fullscreen; gyroscope; picture-in-picture"></iframe>
+  <iframe src="{{ view }}" frameborder="0"
+          allow="accelerometer; autoplay; encrypted-media; fullscreen; gyroscope; picture-in-picture"></iframe>
   <div class="resizable w3-card">
     <i class="fas fa-expand-alt fa-flip-horizontal"></i>
   </div>
