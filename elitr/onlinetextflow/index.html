@@ -11,6 +11,8 @@
         crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+<script src="static/jquery.ui.touch-punch.min.js"></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
       integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
       crossorigin="anonymous">
@@ -110,16 +112,23 @@
   }
 
   .trd {
+    {% if debug %}
     cursor: pointer;
+    {% endif %}
+  }
+
+  .ar .trd, .he .trd {
+    direction: rtl;
   }
 
   .empty::before {
-    content: "no events yet";
+    content: "no text yet";
     font-style: italic;
   }
 
   h1 {
     text-transform: uppercase;
+    margin: 230px 0px 0px;
   }
 
   a {
@@ -142,6 +151,7 @@
   .bar button {
     display: block;
     width: 60px;
+    padding: 8px 0px;
     margin: 5px 10px;
     border: 1px solid var(--elitrblue);
     font-weight: bold;
@@ -155,23 +165,62 @@
     background-color: white;
   }
 
+  #display button {
+    display: block;
+    width: 40px;
+    height: 35px;
+    padding: 4px 0px;
+    margin: 2px 4px;
+    border: 1px solid var(--elitrblue);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    background-color: var(--elitrblue);
+  }
+
+  #display button.hide {
+    color: var(--elitrblue);
+    background-color: white;
+  }
+
   #content {
     padding-right: 80px;
   }
 
-  #display {
+  #upper {
+
+  }
+
+  #lower {
     position: absolute;
     bottom: 10px;
   }
 
+  #control {
+
+  }
+
   #preview {
-    background-color: black;
+    background-color: white;
     width: 320px;
     height: 180px;
     position: fixed; /*!!!*/
-    bottom: 100px;
-    right: 0px;
+    top: 8px;
+    left: 8px;
     margin: 20px 0px; /*!!!*/
+  }
+
+  #display {
+    position: fixed;
+    top: 8px;
+    right: 100px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 220px;
+    width: 440px;
+    padding: 4px 4px 0px;
+    background-color: white;
   }
 
   iframe {
@@ -182,10 +231,13 @@
   .draggable {
     cursor: grab;
     height: 20px;
-    width: 110%;
+    width: 100%;
     position: absolute;
     top: -20px;
     right: 0px;
+    padding: 2px 3px 3px;
+    text-align: left;
+    color: white;
     background-color: red;
   }
 
@@ -196,10 +248,13 @@
   .resizable {
     cursor: nwse-resize;
     height: 20px;
-    width: 110%;
+    width: 100%;
     position: absolute;
     bottom: -20px;
     left: 0px;
+    padding: 2px 3px 3px;
+    text-align: right;
+    color: white;
     background-color: orange;
   }
 
@@ -231,16 +286,36 @@
   <a href="https://elitr.eu/" target="_blank">
     <img src="https://elitr.eu/wp-content/uploads/2019/01/logo-elitr-300x268.png" width="75" height="67">
   </a>
-  <div id="control"></div>
-  <div id="display"></div>
-  {% if view %}
-  <div id="preview" class="w3-card w3-animate-right">
-    <div class="draggable w3-card"></div>
-    <iframe src="{{ view }}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
-    <div class="resizable ui-resizable-handle ui-resizable-s w3-card"></div>
+  <div id="upper">
+    <button onclick="display(this)" class="w3-btn w3-animate-right" title="language menu">
+      <i class="fas fa-language" style="font-size: 200%"></i>
+    </button>
   </div>
-  {% endif %}
+  <div id="lower">
+    {% if view %}
+    <button onclick="preview(this)" class="w3-btn w3-animate-right" title="video preview">
+      <i class="fas fa-tv"></i>
+    </button>
+    {% endif %}
+    <button onclick="refresh()" class="w3-btn" id="scroll" title="auto scroll">
+      <i id="iconic" class="fas fa-sync"></i>
+    </button>
+  </div>
 </div>
+{% if view %}
+<div id="preview" class="w3-card w3-animate-top">
+  <div class="draggable w3-card">
+    <i class="fas fa-expand-alt fa-flip-horizontal"></i>
+  </div>
+  <iframe src={{ view | tojson }} frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+                 fullscreen; gyroscope; picture-in-picture"></iframe>
+  <div class="resizable w3-card">
+    <i class="fas fa-expand-alt fa-flip-horizontal"></i>
+  </div>
+</div>
+{% endif %}
+<div id="display" class="w3-card w3-animate-top"></div>
 
 <script>
   var menu = new Set({{ menu | tojson }});
@@ -265,14 +340,6 @@
     code += '<button onclick="control(this)" class="w3-btn" name="' + kind +
                   '" id="button-' + kind + '">' + kind + '</button>';
   }
-  document.getElementById("control").innerHTML = code;
-
-  var code = {% if view %}
-             '<button onclick="preview(this)" class="w3-btn w3-animate-right">' +
-             '<i class="fas fa-tv"></i></button>' +
-             {% endif %}
-             '<button onclick="refresh()" class="w3-btn" id="scroll">' +
-             '<i id="iconic" class="fas fa-sync"></i></button>';
   document.getElementById("display").innerHTML = code;
 
   var scroll = document.getElementById("scroll");
@@ -280,7 +347,7 @@
   var canvas = document.documentElement;
   var review = 0;
 
-  var events = new EventSource("{{ data }}");
+  var events = new EventSource({{ data | tojson }});
 
   var node = function (data) {
     var elem = document.createElement("div");
@@ -295,10 +362,13 @@
     return '<div class="idx item">' + zero    + '</div>' +
            '<div class="fst item">' + data[0] + '</div>' +
            '<div class="snd item">' + data[1] + '</div>' +
-           '<div onclick="popup(this)"' +
+           '<div' + {% if debug %}
+                    ' onclick="popup(this)"' +
+                    {% endif %}
                ' class="trd item">' + data[2] + '</div>';
   }
 
+  {% if debug %}
   var popup = function (elem) {
     var wind = window.open("", "_blank");
     var code = '<!DOCTYPE html>' + elem.parentElement.innerHTML;
@@ -306,6 +376,7 @@
     wind.document.write(code);
     wind.document.close();
   }
+  {% endif %}
 
   var listen = {};
 
@@ -365,17 +436,21 @@
     }
   }
 
-  let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
+  let show = JSON.parse(sessionStorage.getItem("show") || "null") || {{ show | tojson }};
 
-  var show = new Set(menu);
+  var hide = new Set(menu);
+  for (let kind of show) {
+    hide.delete(kind);
+  }
+
   for (let kind of hide) {
-    show.delete(kind);
     document.getElementById("button-" + kind).classList.toggle("hide");
     document.getElementById("column-" + kind).classList.toggle("hide");
   }
 
   for (let kind of show) {
     events.addEventListener(kind, listen[kind]);
+    $("#content").append($("#column-" + kind));
   }
 
   events.onmessage = function (event) {
@@ -396,19 +471,20 @@
     canvas.scroll(0, canvas.scrollHeight);
     scroll.classList.toggle("hide", false);
     iconic.classList.toggle("w3-spin", false);
-    let hide = JSON.parse(sessionStorage.getItem("hide") || "[]");
-    let indx = hide.indexOf(kind);
+    let show = JSON.parse(sessionStorage.getItem("show") || "null") || {{ show | tojson }};
+    let indx = show.indexOf(kind);
     if (indx < 0) {
-      hide.push(kind);
-      show.delete(kind);
-      events.removeEventListener(kind, listen[kind]);
+      show.push(kind);
+      hide.delete(kind);
+      events.addEventListener(kind, listen[kind]);
+      $("#content").append($("#column-" + kind));
     }
     else {
-      hide.splice(indx, 1);
-      show.add(kind);
-      events.addEventListener(kind, listen[kind]);
+      show.splice(indx, 1);
+      hide.add(kind);
+      events.removeEventListener(kind, listen[kind]);
     }
-    sessionStorage.setItem("hide", JSON.stringify(hide));
+    sessionStorage.setItem("show", JSON.stringify(show));
   }
 
   var refresh = function () {
@@ -425,6 +501,13 @@
       canvas.scroll(0, canvas.scrollHeight);
     }
   }
+
+  var display = function (elem) {
+    elem.classList.toggle("hide");
+    $("#display").toggle();
+  }
+
+  $("#display").sortable();
 
   {% if view %}
   var preview = function (elem) {
@@ -451,7 +534,7 @@
       for (let column of cols) {
         let top = parseInt(column.style.top) || 0;
         if (top > 0) {
-          top = top - 8;
+          top -= Math.max(8, Math.floor(top / 25));
           column.style.top = (top > 0 ? top : 0) + "px";
         }
       }

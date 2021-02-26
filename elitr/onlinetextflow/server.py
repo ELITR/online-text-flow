@@ -34,12 +34,16 @@ DATA = []
 
 OPTS = config.auth
 
-MENU = config.menu
-
 
 def normal(path):
     path = re.sub('^https?:/+', '', path)
     return 'https://' + path if path else ''
+
+def unwind(path):
+    return path.replace('/', ' ').split()
+
+def inline(opts):
+    return '/'.join(opts)
 
 
 async def events():
@@ -66,7 +70,7 @@ async def send():
         line = list(DATA)
         for queue in line:
             await queue.put(data)
-        log.debug("#%s sent to %d clients in %d ns",
+        log.error("#%s sent to %d clients in %d ns",
                   data['id'], len(line), nano() - secs)
 
 
@@ -89,7 +93,7 @@ async def post():
 
 @end.route('/data')
 async def data():
-    if session.get('auth'):
+    if OPTS['pass'] == '' or session.get('auth'):
         response = await quart.make_response(
             events(),
             {
@@ -130,11 +134,41 @@ async def login():
 @end.route('/menu/<path:path>')
 @end.route('/menu/')
 async def menu(path=''):
-    path = path.replace('/', ' ').split()
-    if path:
-        session['menu'] = path
-    elif 'menu' in session:
-        del session['menu']
+    data = {'menu': path,
+            'hide': request.args.get('hide', ''),
+            'show': request.args.get('show', '')}
+    for key in data:
+        data[key] = unwind(data[key])
+        if data[key]:
+            session[key] = data[key]
+        elif key in session:
+            del session[key]
+    return quart.redirect(url('.index'))
+
+
+@end.route('/show/<path:path>')
+@end.route('/show/')
+async def show(path=''):
+    show = unwind(path)
+    if show:
+        session['show'] = show
+    elif 'show' in session:
+        del session['show']
+    if 'hide' in session:
+        del session['hide']
+    return quart.redirect(url('.index'))
+
+
+@end.route('/hide/<path:path>')
+@end.route('/hide/')
+async def hide(path=''):
+    hide = unwind(path)
+    if hide:
+        session['hide'] = hide
+    elif 'hide' in session:
+        del session['hide']
+    if 'show' in session:
+        del session['show']
     return quart.redirect(url('.index'))
 
 
@@ -151,9 +185,17 @@ async def view(path=''):
 
 @end.route('/')
 async def index():
-    if session.get('auth'):
+    if OPTS['pass'] == '' or session.get('auth'):
+        menu = session.get('menu', OPTS['menu'])
+        show = session.get('show', OPTS['show'])
+        hide = session.get('hide', OPTS['hide'])
+        if hide:
+            show = []
+            for key in menu:
+                if key not in hide:
+                    show.append(key)
         return await quart.render_template('index.html', data=url('.data'),
-                                           menu=session.get('menu', MENU),
+                                           menu=menu, show=show, debug=OPTS['debug'],
                                            view=session.get('view', OPTS['view']))
     else:
         return quart.redirect(url('.login'))
@@ -170,22 +212,25 @@ def point():
 
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('menu', nargs=-1)
+@click.argument('kind', nargs=-1)
 @click.option('--path', default=config.path, show_default=True)
 @click.option('--port', default=config.port, show_default=True)
 @click.option('--host', default=config.host, show_default=True)
 @click.option('--user', default=OPTS['user'], show_default=True)
 @click.option('--pass', default=OPTS['pass'], show_default=True)
-@click.option('--view', default='')
+@click.option('--show', default=inline(config.show), show_default=True)
+@click.option('--hide', default=inline(config.hide), show_default=True)
+@click.option('--view', default=config.view, show_default=True)
+@click.option('--menu', default=inline(config.menu), show_default=True)
 @click.option('--debug', is_flag=True, default=False)
 @click.option('--reload', 'use_reloader', is_flag=True, default=False)
-def main(menu, **opts):
+def main(kind, **opts):
     """
     Run the web app to merge, stream, and render online text flow events. Post
     events at /post. Send events thru a websocket at /send instead of posting
     separate requests. Listen to the event stream at /data. Browse at /.
 
-    The MENU of events to browse by default is ['en', 'de', 'cs']. Change this
+    The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
     for all browsers by mentioning other event kinds on the command line. Set
     the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
     and empty to reset.
@@ -202,18 +247,30 @@ def main(menu, **opts):
 
     http://github.com/ELITR/online-text-flow
     """
-    global MENU
-    if menu:
-        MENU = list(menu)
-    for key in ['user', 'pass', 'path', 'view']:
-        OPTS[key] = opts[key]
-        del opts[key]
+    if kind:
+        opts['show'] = inline(kind)
+    for key in list(opts):
+        if key not in ['host', 'port', 'use_reloader']:
+            OPTS[key] = opts[key]
+            if key not in ['debug']:
+                del opts[key]
+    for key in ['menu', 'show', 'hide']:
+        OPTS[key] = unwind(OPTS[key])
     OPTS['view'] = normal(OPTS['view'])
     print(' * Path:', OPTS['path'])
     print(' * Opts:', opts)
-    print(' * Menu:', MENU, OPTS['view'])
+    print(' * Show:', *OPTS['show'], OPTS['view'])
+    print(' * Menu:', *OPTS['menu'])
     app.register_blueprint(end, url_prefix='/' + OPTS['path'])
-    app.run(**opts)
+    if opts['debug']:
+        app.run(**opts)
+    else:
+        from hypercorn.asyncio import serve
+        from hypercorn.config import Config
+        config = Config()
+        config.bind = opts['host'] + ':' + str(opts['port'])
+        config.root_path = ''
+        asyncio.run(serve(app, config))
 
 
 if __name__ == '__main__':

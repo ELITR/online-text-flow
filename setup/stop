@@ -1,4 +1,7 @@
 #!/bin/bash
 
-ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]'
-ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]' | cut -f 1 -d ' ' | xargs kill
+ps -xao pid:1,command | grep 'online-text-flow server' | grep ' --port 80'
+ps -xao pid:1,command | grep 'online-text-flow server' | grep ' --port 80' | cut -f 1 -d ' ' | xargs sudo kill
+
+# ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]'
+# ps -xo pid:1,command | grep 'online-text-flow server' | grep ' --port [56]00[0-3]' | cut -f 1 -d ' ' | xargs kill

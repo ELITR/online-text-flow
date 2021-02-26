@@ -1,1 +1,2 @@
 include elitr/onlinetextflow/*.html
+include elitr/onlinetextflow/*.js
