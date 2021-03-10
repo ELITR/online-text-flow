@@ -5,28 +5,46 @@ Online event streaming to improve data and text flows
 
 ## Setup
 
-This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
+The project has two packages, with two installation points. Server requires Python>=3.7, while the events and client require Python>=3.6.
+
+### Events and client
+
+Be careful with the installation command. A wrong alternative make it working correctly, but extremely slow. Always use `pip install --editable .` , or `python3 setup.py develop` . Never `...install` !!!
 
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow/
     
-    pip install --editable .       # not by "python3 setup.py install", it could be much slower!!!
+    pip install --editable .       
     
-    export PATH=~/.local/bin:$PATH
+    export PATH=~/.local/bin:$PATH    # TODO: DM thinks it's not necessary, at least in virtualenv
 
     git pull        # no need to reinstall due
-                    # to develop/--editable
+                    # to --editable
 
-You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience.
+You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience. With virtual environment, it is automatic.
 
     online-text-flow
     online-text-flow events -h
     online-text-flow client -h
-    online-text-flow server -h
+    online-text-flow from_brief -h
+    online-text-flow to_brief -h
     
     online-text-flow-events -h
     online-text-flow-client -h
+    online-text-flow-from_brief -h
+    online-text-flow-to_brief -h
+   
+### Server
+
+Requires Python>=3.7. The installation script is setup_server.py. 
+
+    python3 setup_server.py develop
+    
+The only entry point is 
+
     online-text-flow-server -h
+
+
 
 The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as well as the [`start`](setup/start) and [`stop`](setup/stop) scripts. When activated, **multiple apps** are deployed at **different mountpoints** and available as follows:
 
@@ -92,21 +110,22 @@ The code is organized into a Python package of the following structure:
 
     online-text-flow/
         setup.py
-        MANIFEST.in
+        setup_server.py
         README.md
         data/
             en.txt
             cs.txt
+            ...
         elitr/
             __init__.py
             onlinetextflow/
                 __init__.py
                 events.py
                 client.py
-                config.py
+                ...
+            onlinetextflow_server/
                 server.py
-                index.html
-                login.html
+                ...
         setup/
             nginx
             start
@@ -114,30 +133,29 @@ The code is organized into a Python package of the following structure:
 
 The [`setup.py`](setup.py) defines a namespace package `elitr` where independent project distributions can be plugged in. Reuse the exact same [`elitr/__init__.py`](elitr/__init__.py) and similar [`setup.py`](setup.py) in your plug-in project.
 
-Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scripts, you may try running the modules as executables, or importing them from your code:
+Next to the `online-text-flow` and `online-text-flow-{events,client,...}` scripts, you may try running the modules as executables, or importing them from your code:
 
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow/server.py), which can be useful if application parameters cannot be provided via a command line.
+The [`config.py`](elitr/onlinetextflow_server/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow_server/server.py), which can be useful if application parameters cannot be provided via a command line.
 
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
     Usage: online-text-flow [OPTIONS] COMMAND [ARGS]...
-    
+
       Entry point for the executables of the online-text-flow project. Replace
       the COMMAND from the list below to learn more details.
-    
+
       Try `online-text-flow COMMAND --help` and `online-text-flow-COMMAND -h`.
-    
+
     Options:
       -h, --help  Show this message and exit.
-    
+
     Commands:
       client      Emit data as the KIND of events to the URL/send websocket or...
       events      Turn data from speech recognition into text for machine...
       from_brief  Converts from the brief text flow into the original one.
-      server      Run the web app to merge, stream, and render online text flow...
       to_brief    Converts into the brief text flow from the original one.
 
 ### online-text-flow events / [events.py](elitr/onlinetextflow/events.py)
@@ -192,43 +210,23 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
                      "verbose" protocol with repeated sentences.  [default: False]
       -h, --help     Show this message and exit.
 
-### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
+### online-text-flow-server / [server.py](elitr/onlinetextflow_server/server.py)
 
-    Usage: online-text-flow server [OPTIONS] [MENU]...
-    
-      Run the web app to merge, stream, and render online text flow events. Post
-      events at /post. Send events thru a websocket at /send instead of posting
-      separate requests. Listen to the event stream at /data. Browse at /.
-    
-      The MENU of events to browse by default is ['en', 'de', 'cs']. Change this
-      for all browsers by mentioning other event kinds on the command line. Set
-      the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
-      and empty to reset.
-    
-      The --path PATH specifies the mountpoint of the app within the server. It
-      can have the form of 'textflow', 'elitr', 'elitr/monday-seminars', etc. A
-      custom setup of the proxy server is necessary to reflect these properly.
-    
-      These settings can also be changed in and provided via the config module.
-    
-      The --view URL option will embed the linked video or webpage into the app,
-      as will do requesting the /view/URL endpoint, like /view/http://youtu.be.
-      The scheme is always reset to https, and /view/elitr.eu?s=theaitre works.
-    
-      http://github.com/ELITR/online-text-flow
-    
+    Usage: online-text-flow-server [OPTIONS] COMMAND [ARGS]...
+
+      Entry point for the executables of the online-text-flow project. Replace
+      the COMMAND from the list below to learn more details.
+
+      Try `online-text-flow COMMAND --help` and `online-text-flow-COMMAND -h`.
+
     Options:
-      --path TEXT     [default: textflow]
-      --port INTEGER  [default: 5000]
-      --host TEXT     [default: 127.0.0.1]
-      --user TEXT     [default: *****]
-      --pass TEXT     [default: *****]
-      --view TEXT
-      --debug
-      --reload
-      -h, --help      Show this message and exit.
+      -h, --help  Show this message and exit.
 
-### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
+    Commands:
+      server  Run the web app to merge, stream, and render online text flow...
+
+
+### [elitr/onlinetextflow_server/index.html](elitr/onlinetextflow_server/index.html)
 
 The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/menu/en/de/cs`, and empty `/menu` to reset.
 
@@ -240,7 +238,7 @@ The selected event flows form distinct columns of indexed text snippets on the m
 In order to embed a custom video or webpage into the app, set the `/view` endpoint in the browser with the URL needed, like
 `/view/http://youtu.be` or `/view/elitr.eu?s=theaitre`, and empty to reset. Move or resize the embedded view by dragging its top or bottom margin, respectively. Click the preview button in the side bar to hide and show the video, while its audio can still be listened to.
 
-### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
+### [elitr/onlinetextflow_server/login.html](elitr/onlinetextflow_server/login.html)
 
 Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [config.py](elitr/onlinetextflow/config.py) only to restrict the viewing of the `/` and `/data` endpoints. Note that the `/send` and `/post` endpoints do not require authorization yet, and `/menu` and `/view` are not secured either!
 
