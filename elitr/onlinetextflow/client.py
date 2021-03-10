@@ -16,10 +16,7 @@ import re
 import sys
 import click
 
-try:
-    from . import textflow_protocol
-except ImportError:
-    import elitr.onlinetextflow.textflow_protocol as textflow_protocol
+from . import textflow_protocol
 
 webs = websocket.WebSocket()
 

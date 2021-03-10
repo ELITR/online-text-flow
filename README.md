@@ -10,8 +10,7 @@ This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Clic
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow/
     
-    python3 setup.py develop        # either
-    pip3 install --editable .       # or
+    pip install --editable .       # not by "python3 setup.py install", it could be much slower!!!
     
     export PATH=~/.local/bin:$PATH
 
