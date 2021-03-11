@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-print(find_packages())
 setup(
     name='online-text-flow',
     version='1.7.0',
