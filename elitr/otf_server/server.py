@@ -19,6 +19,7 @@ import asyncio
 import os
 import re
 import click
+import sys
 
 from . import config
 
@@ -252,6 +253,11 @@ def main(kind, **opts):
 
     http://github.com/ELITR/online-text-flow
     """
+
+    if sys.version_info < (3,7):
+        print("ERROR: Server works only with Python >= 3.7, due to asyncio.run. Use newer version of Python.",file=sys.stderr)
+        sys.exit(1)
+
     if kind:
         opts['show'] = inline(kind)
     for key in list(opts):
