@@ -25,8 +25,8 @@ cd $logs
 # nohup sudo online-text-flow server --view https://www.youtube.com/embed/7cjia0L80dM --pass '' \
 #                                    --path elitr/theaitre --host 0.0.0.0 --port 80 > 80.log 2>&1 &
 
-nohup sudo online-text-flow server --view 'https://www.youtube.com/embed/4nfzvEsTSzs?autoplay=1&mute=1' \
-                                   --pass '' \
+nohup sudo online-text-flow server --view 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FTheaitre%2Fvideos%2F851406275425274%2F&show_text=false&width=560' \
+                                   --pass '' en cs \
                                    --path elitr/theaitre --host 0.0.0.0 --port 80 > 80.log 2>&1 &
 
 sleep 1

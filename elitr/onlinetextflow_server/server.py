@@ -20,9 +20,14 @@ import os
 import re
 import click
 
-from time import perf_counter_ns as nano
-
 from . import config
+
+try:
+    from time import perf_counter_ns as nano
+except ImportError:
+    from time import perf_counter
+    def nano():
+        return int(perf_counter() * 1000000000)
 
 
 end = Blueprint(config.path, __name__, template_folder='.')
