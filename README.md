@@ -104,23 +104,27 @@ The code is organized into a Python package of the following structure:
                 __init__.py
                 events.py
                 client.py
-                config.py
-                server.py
-                index.html
-                login.html
+                server/
+                    __init__.py
+                    config.py
+                    index.html
+                    login.html
+                    ...
+                ...
         setup/
             nginx
             start
             stop
+            ...
 
-The [`setup.py`](setup.py) defines a namespace package `elitr` where independent project distributions can be plugged in. Reuse the exact same [`elitr/__init__.py`](elitr/__init__.py) and similar [`setup.py`](setup.py) in your plug-in project.
+The [`setup.py`](setup.py) identifies a namespace package `elitr` where independent project distributions can be plugged in. Closely follow the setup and layout of this package in another `elitr` plug-in project.
 
 Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scripts, you may try running the modules as executables, or importing them from your code:
 
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`server.py`](elitr/onlinetextflow/server.py), which can be useful if application parameters cannot be provided via a command line.
+The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defaults for the [`server/__init__.py`](elitr/onlinetextflow/server.py), which can be useful if application parameters cannot be provided via a command line.
 
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
@@ -193,15 +197,15 @@ The [`config.py`](elitr/onlinetextflow/config.py) defines the defaults for [`ser
                      "verbose" protocol with repeated sentences.  [default: False]
       -h, --help     Show this message and exit.
 
-### online-text-flow server / [server.py](elitr/onlinetextflow/server.py)
+### online-text-flow server / [server/\_\_init\_\_.py](elitr/onlinetextflow/server/__init__.py)
 
-    Usage: online-text-flow server [OPTIONS] [MENU]...
+    Usage: online-text-flow server [OPTIONS] [KIND]...
     
       Run the web app to merge, stream, and render online text flow events. Post
       events at /post. Send events thru a websocket at /send instead of posting
       separate requests. Listen to the event stream at /data. Browse at /.
     
-      The MENU of events to browse by default is ['en', 'de', 'cs']. Change this
+      The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
       for all browsers by mentioning other event kinds on the command line. Set
       the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
       and empty to reset.
