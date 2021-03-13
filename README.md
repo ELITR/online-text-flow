@@ -99,7 +99,6 @@ The code is organized into a Python package of the following structure:
             en.txt
             cs.txt
         elitr/
-            __init__.py
             onlinetextflow/
                 __init__.py
                 events.py
