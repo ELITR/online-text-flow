@@ -40,9 +40,9 @@ The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as w
 - https://quest.ms.mff.cuni.cz/elitr/monday-seminars/
 - https://quest.ms.mff.cuni.cz/elitr/debug/
 
-Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--serverpy) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints.
+Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--server__init__py) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints.
 
-The design features of the frontend are described in the [index](#elitronlinetextflowindexhtml) and [login](#elitronlinetextflowloginhtml) sections.
+The design features of the frontend are described in the [index](#elitronlinetextflowserverindexhtml) and [login](#elitronlinetextflowserverloginhtml) sections.
 
 ## Quick Tips
 
@@ -124,7 +124,7 @@ Next to the `online-text-flow` and `online-text-flow-{events,client,server}` scr
     elitr/onlinetextflow/events.py --help
     python3 -m elitr.onlinetextflow.__init__
 
-The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defaults for the [`server/__init__.py`](elitr/onlinetextflow/server.py), which can be useful if application parameters cannot be provided via a command line.
+The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defaults for the [`server/__init__.py`](elitr/onlinetextflow/server/__init__.py), which can be useful if application parameters cannot be provided via a command line.
 
 ### online-text-flow / [\_\_init\_\_.py](elitr/onlinetextflow/__init__.py)
 
@@ -208,7 +208,9 @@ The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defa
       The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
       for all browsers by mentioning other event kinds on the command line. Set
       the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
-      and empty to reset.
+      and empty to reset. To control which kinds of events are selected in the
+      menu, try /show/cs/en or /hide/de/en in the browser. Configure the server
+      defaults via the --menu MENU, --show SHOW, or --hide HIDE options.
     
       The --path PATH specifies the mountpoint of the app within the server. It
       can have the form of 'textflow', 'elitr', 'elitr/monday-seminars', etc. A
@@ -228,26 +230,32 @@ The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defa
       --host TEXT     [default: 127.0.0.1]
       --user TEXT     [default: *****]
       --pass TEXT     [default: *****]
-      --view TEXT
+      --show TEXT     [default: en/de/cs]
+      --hide TEXT     [default: ]
+      --view TEXT     [default: ]
+      --menu TEXT     [default: en/cs/ar/az/be/bg/bs/da/de/el/es/et/fi/fr/ga/he/hr
+                      /hu/hy/is/it/ka/kk/lb/lt/lv/me/mk/mt/nl/no/pl/pt/ro/ru/sk/sl
+                      /sq/sr/sv/tr/uk]
+    
       --debug
       --reload
       -h, --help      Show this message and exit.
 
-### [elitr/onlinetextflow/index.html](elitr/onlinetextflow/index.html)
+### [elitr/onlinetextflow/server/index.html](elitr/onlinetextflow/server/index.html)
 
-The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/menu/en/de/cs`, and empty `/menu` to reset.
+The kind of events to browse by default is ['en', 'de', 'cs']. Change this for all browsers by starting the server with the documented command line parameters. For a custom menu in the browser, set the `/menu` endpoint, like `/menu/en/de/cs`, and empty `/menu` to reset. To control which kinds of events are selected in the menu, click on the menu buttons in the order of the desired display, or set the `/show` and `/hide` endpoints in the browser, like `/show/cs/en` or `/hide/de/en`.
 
 The selected event flows form distinct columns of indexed text snippets on the main screen of the application. There is a menu bar on the right containing further control buttons. The interactivity features of the frontend comprise:
 - **Exclude** an event flow from the display by clicking a corresponding button in the menu. **Include** it likewise. The selection is remembered per browser tab and survives a reload of the page. One can thus easily clear the history of the event flows, yet retain the preferred kinds of events in display.
 - Event flows are automatically scrolled and aligned at the bottom of the page as new text is being rendered. Click the refresh button in the lower right corner of the screen to scroll to a previous **Review** position and turn the auto scrolling off. Use other user scrolling methods for this, too, and move up or down the page as needed. Click the refresh button again to remember the review position and **Resume** automatic scrolling and event flow alignment.
-- **Inspect** any desired text snippet by clicking on it. The text will be copied over into a new tab for easier reference.
+- **Inspect** any desired text snippet by clicking on it, if running in the `--debug` mode. The text will be copied over into a new tab for easier reference.
 
 In order to embed a custom video or webpage into the app, set the `/view` endpoint in the browser with the URL needed, like
 `/view/http://youtu.be` or `/view/elitr.eu?s=theaitre`, and empty to reset. Move or resize the embedded view by dragging its top or bottom margin, respectively. Click the preview button in the side bar to hide and show the video, while its audio can still be listened to.
 
-### [elitr/onlinetextflow/login.html](elitr/onlinetextflow/login.html)
+### [elitr/onlinetextflow/server/login.html](elitr/onlinetextflow/server/login.html)
 
-Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [config.py](elitr/onlinetextflow/config.py) only to restrict the viewing of the `/` and `/data` endpoints. Note that the `/send` and `/post` endpoints do not require authorization yet, and `/menu` and `/view` are not secured either!
+Includes the flashing of login and logout messages as provided by Quart. Authentication is simple and credentials are set in [server/config.py](elitr/onlinetextflow/server/config.py) only to restrict the viewing of the `/` and `/data` endpoints. Note that the `/send` and `/post` endpoints do not require authorization yet, and `/menu` and `/view` are not secured either!
 
 To log in without the need to fill in the login form, open the `/login?auth=USERNAME:PASSWORD` endpoint.
 

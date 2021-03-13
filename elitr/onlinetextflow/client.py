@@ -2,7 +2,7 @@
 
 """Online Text Flow Client"""
 
-__copyright__ = "2020"
+__copyright__ = "2021"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
@@ -16,10 +16,8 @@ import re
 import sys
 import click
 
-try:
-    from . import textflow_protocol
-except ImportError:
-    import elitr.onlinetextflow.textflow_protocol as textflow_protocol
+from . import textflow_protocol
+
 
 webs = websocket.WebSocket()
 

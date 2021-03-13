@@ -6,13 +6,13 @@ host = '127.0.0.1'
 
 auth = {'user': 'elitr', 'pass': 'elitr'}
 
-menu = ['en', 'cs'] + sorted(['bg', 'hr', 'da', 'nl',
-                              'et', 'fi', 'fr', 'de', 'el', 'hu',
-                              'ga', 'it', 'lv', 'lt', 'mt', 'pl',
-                              'pt', 'ro', 'sk', 'sl', 'es', 'sv',
-                              'sq', 'ar', 'hy', 'az', 'be', 'bs',
-                              'ka', 'he', 'is', 'kk', 'lb', 'mk',
-                              'me', 'no', 'ru', 'sr', 'tr', 'uk'])
+menu = ['en', 'cs', 'ar', 'az', 'be', 'bg',
+        'bs', 'da', 'de', 'el', 'es', 'et',
+        'fi', 'fr', 'ga', 'he', 'hr', 'hu',
+        'hy', 'is', 'it', 'ka', 'kk', 'lb',
+        'lt', 'lv', 'me', 'mk', 'mt', 'nl',
+        'no', 'pl', 'pt', 'ro', 'ru', 'sk',
+        'sl', 'sq', 'sr', 'sv', 'tr', 'uk']
 
 show = ['en', 'de', 'cs']
 

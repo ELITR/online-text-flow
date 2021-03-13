@@ -2,7 +2,7 @@
 
 """Online Text Flow Events"""
 
-__copyright__ = "2020"
+__copyright__ = "2021"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
@@ -16,10 +16,8 @@ import click
 
 from mosestokenizer import MosesSentenceSplitter
 
-try:
-    from . import textflow_protocol
-except ImportError:
-    import elitr.onlinetextflow.textflow_protocol as textflow_protocol
+from . import textflow_protocol
+
 
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
@@ -139,7 +137,7 @@ class Flow():
             it's not
 
         The sentence-timestamps are estimated from the beginning and ending
-        timestamps of the whole segment, by the sentence lengths in characters. 
+        timestamps of the whole segment, by the sentence lengths in characters.
 
         DISCLAIMER: They may be inaccurate, if the speech pace varies!!!
         '''
@@ -244,8 +242,8 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
               help='Output the resulting text split into classes by empty lines.')
 @click.option('--timestamps', 'timestamps',is_flag=True, default=False, show_default=True,
               help='Output the real events timestamps as the 3rd and 4th '
-	      'space-separated column. The timestamps are approximated '
-	      'from the input segments by length in characters.')
+              'space-separated column. The timestamps are approximated '
+              'from the input segments by length in characters.')
 @click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
               help='Input is converted from the "brief" text flow to the '
               'original "verbose" protocol with repeated sentences.')

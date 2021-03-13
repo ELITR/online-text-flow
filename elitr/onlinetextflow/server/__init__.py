@@ -18,13 +18,14 @@ import quart
 import asyncio
 import os
 import re
+import sys
 import click
 
 from . import config
 
 try:
     from time import perf_counter_ns as nano
-except ImportError:
+except:
     from time import perf_counter
     def nano():
         return int(perf_counter() * 1000000000)
@@ -238,7 +239,9 @@ def main(kind, **opts):
     The KIND of events to browse by default is ['en', 'de', 'cs']. Change this
     for all browsers by mentioning other event kinds on the command line. Set
     the /menu endpoint for a custom menu in the browser, like /menu/en/de/cs,
-    and empty to reset.
+    and empty to reset. To control which kinds of events are selected in the
+    menu, try /show/cs/en or /hide/de/en in the browser. Configure the server
+    defaults via the --menu MENU, --show SHOW, or --hide HIDE options.
 
     The --path PATH specifies the mountpoint of the app within the server. It
     can have the form of 'textflow', 'elitr', 'elitr/monday-seminars', etc. A
@@ -267,7 +270,7 @@ def main(kind, **opts):
     print(' * Show:', *OPTS['show'], OPTS['view'])
     print(' * Menu:', *OPTS['menu'])
     app.register_blueprint(end, url_prefix='/' + OPTS['path'])
-    if opts['debug']:
+    if opts['debug'] or sys.version_info < (3, 7):
         app.run(**opts)
     else:
         from hypercorn.asyncio import serve
