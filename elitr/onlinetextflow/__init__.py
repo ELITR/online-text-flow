@@ -1,6 +1,6 @@
-"""Online Text Flow CLI"""
+"""Online Text Flow"""
 
-__copyright__ = "2019"
+__copyright__ = "2021"
 __homepage__  = "http://github.com/ELITR/online-text-flow"
 __license__   = "GPL"
 __author__    = "Otakar Smrz"
@@ -8,19 +8,12 @@ __email__     = "otakar-smrz users.sf.net"
 
 
 import click
+import importlib
+import sys
 
-from .events import main as e
-from .client import main as c
-from .server import main as s
-from .to_brief import main as tb
-from .from_brief import main as fb
-
-
-
-from . import textflow_protocol
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
-def main():
+def name():
     """
     Entry point for the executables of the online-text-flow project. Replace
     the COMMAND from the list below to learn more details.
@@ -30,11 +23,19 @@ def main():
     pass
 
 
-main.add_command(e, 'events')
-main.add_command(c, 'client')
-main.add_command(s, 'server')
-main.add_command(tb, 'to_brief')
-main.add_command(fb, 'from_brief')
+def main():
+    """
+    Entry point for the executables of the online-text-flow project. Cooler!
+    """
+    where = ['server', 'events', 'client', 'to_brief', 'from_brief']
+    which = sys.argv[1] if len(sys.argv) > 1 else ''
+    if which and which in where:
+        where = [which]
+    for which in where:
+        every = importlib.import_module('.' + which, package=__package__)
+        name.add_command(every.main, which)
+    name()
+
 
 if __name__ == '__main__':
     main()
