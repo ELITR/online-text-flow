@@ -5,29 +5,55 @@ Online event streaming to improve data and text flows
 
 ## Setup
 
-This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). Start with the installation:
+This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). First, clone this repo:
 
     git clone https://github.com/ELITR/online-text-flow.git
     cd online-text-flow/
+
+Server requires Python>=3.7, the other parts 3.6. Start with creating or activating your virtual environment with the Python3 version you want to use, specified as the `-p` parameter:
+
+    virtualenv p3 -p /usr/bin/python3
+    source p3/bin/activate
+   
+Without virtual environment, you might need `export PATH=~/.local/bin:$PATH`.
+    
+### Installation
+
+There are two ways to install this tool. The first is for debugging, when you don't mind suboptimal time performance, but you want the changes in the source code to be immediately available for run, without reinstallation. The second way is for performance. Compare their timings by `make check`. Notice that the very first run after installation might be unusually slow, don't count it. Your current system load also has an impact.
+
+
+#### For debugging
     
     python3 setup.py develop        # either
     pip3 install --editable .       # or
+    make develop                    # the first way wrapped in Makefile
+    make editable                   # or the other
     
-    export PATH=~/.local/bin:$PATH
+After changing the source codes, or `git pull`, no need to reinstall due to `develop`/`--editable`.
+                    
+#### For performance
 
-    git pull        # no need to reinstall due
-                    # to develop/--editable
+    make
+    
+After changing the code, `make` again.
 
-You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. You may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience.
+
+## Run
+
+You can now run the following, where `online-text-flow COMMAND` and `online-text-flow-COMMAND` call the same Python code eventually. Without virtual environment, you may need to put `export PATH` into your `~/.bashrc` and possibly introduce some `alias` for convenience.
 
     online-text-flow
     online-text-flow events -h
     online-text-flow client -h
     online-text-flow server -h
+    online-text-flow from_brief -h
+    online-text-flow to_brief -h
     
     online-text-flow-events -h
     online-text-flow-client -h
-    online-text-flow-server -h
+    online-text-flow-server -h    
+    online-text-flow-from_brief -h
+    online-text-flow-to_brief -h
 
 The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as well as the [`start`](setup/start) and [`stop`](setup/stop) scripts. When activated, **multiple apps** are deployed at **different mountpoints** and available as follows:
 
