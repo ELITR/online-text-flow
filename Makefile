@@ -28,5 +28,5 @@ develop:
 	make check
 
 clear:
-	rm -rf elitr/onlinetextflow/__pycache__ elitr/__pycache__ elitr/otf_server/__pycache__ build/ dist online_text_flow.egg-info/
+	rm -rf elitr/onlinetextflow/__pycache__ elitr/__pycache__ elitr/onlinetextflow/server/__pycache__ build/ dist/ online_text_flow.egg-info/
 	pip uninstall online-text-flow -y 
