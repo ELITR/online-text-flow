@@ -2,7 +2,7 @@
 
 import click
 
-from elitr.onlinetextflow.textflow_protocol import *
+from .textflow_protocol import *
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 def main():

@@ -1,5 +1,5 @@
 def parse(line,types=[int,int]):
-    '''get's a line, e.g. 
+    '''get's a line, e.g.
     100 101 The sentence...\n
     returns (100,101), "The sentence...\n"
 
@@ -29,7 +29,7 @@ def brief_to_original(in_stream):
                     yield buff[k]
             yield line
             if status-index == 100:
-                if index in buff:  
+                if index in buff:
                     del buff[index]  # so the buffer has constant size
                 last_f = index
             last_change = index
@@ -55,7 +55,7 @@ class BriefConverter:
     def __init__(self):
         self.buff = {}
         self.last_ch = 0
-        
+
         self.ins_q = []
 
     def insert_stream(self, stream):
@@ -90,4 +90,3 @@ class BriefConverter:
         out = [ self.condition(line, change_state=True) for line in self.ins_q ]
         self.ins_q = []
         return out
-

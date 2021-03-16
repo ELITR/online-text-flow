@@ -16,7 +16,8 @@ import click
 
 from mosestokenizer import MosesSentenceSplitter
 
-from elitr.onlinetextflow import textflow_protocol
+from . import textflow_protocol
+
 
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
