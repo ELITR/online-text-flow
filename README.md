@@ -3,6 +3,8 @@ Online event streaming to improve data and text flows
 
 [Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief Format](#brief-format)
 
+<img title="review the text" src="data/elitr-theaitre-review.png" width="45%"> <img title="resume scrolling" src="data/elitr-theaitre-scroll.png" width="45%">
+
 ## Setup
 
 This project is integrated with [Quart](https://pgjones.gitlab.io/quart/), [Click](https://click.palletsprojects.com), [Requests](https://requests.readthedocs.io) and [Setuptools](https://setuptools.readthedocs.io). First, clone this repo:
@@ -124,6 +126,9 @@ The code is organized into a Python package of the following structure:
         data/
             en.txt
             cs.txt
+            elitr-theaitre-review.png
+            elitr-theaitre-scroll.png
+            ...
         elitr/
             onlinetextflow/
                 __init__.py
