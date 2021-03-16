@@ -3,7 +3,7 @@ from sys import version_info
 
 setup(
     name='online-text-flow',
-    version='1.7.3',
+    version='1.7.4',
     url='http://github.com/ELITR/online-text-flow',
     license='GPL',
     author='Otakar Smrz',
