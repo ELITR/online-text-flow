@@ -70,19 +70,49 @@ def client(kind, url):
             opts['websocket'] = False
     kind = re.sub('\W', '-', " ".join(kind.split()))
     event = empty(kind)
+    queue = {
+        'complete': {},
+        'expected': {},
+        'incoming': {}
+    }
     for line in wrapped_input_stream(sys.stdin):
         if line[:1] == "{":
             event = post(event, url)
             event['data'] = json.loads(line)
             event = post(event, url)
         else:
+            # Until a message is complete, we have to resend it each time we send a message to the server
             data = line.split()
             data = [int(data[0]), int(data[1]), " ".join(data[2:])]
-            text = event['data']['text']
-            text = text["complete"] + text["expected"] + text["incoming"]
-            if text and not text[-1][0] < data[0]:
-                event = post(event, url)
-            event['data']['text'][code[data[1] - data[0]]].append(data)
+            message_id = int(data[0])
+            # Is the incoming message complete, expected or incoming
+            bucket = code[data[1] - data[0]]
+            # Add/update the message to the appropriate bucket
+
+            # Sometimes the MT does not return anything. If that happens for the complete message, use the last one instead.
+            if bucket == "complete" and len(data[2].rstrip()) == 0:
+              queue["complete"][message_id] = queue["expected"].pop(message_id, None)
+            else:
+              queue[bucket][message_id] = data
+
+            if bucket == "expected" or bucket == "complete":
+                queue['incoming'].pop(message_id, None)
+            if bucket == "complete":
+                queue['expected'].pop(message_id, None)
+
+            # Prepare the message to be sent
+            for c in queue.keys():
+                event["data"]["text"][c] = list(queue[c].values())
+
+
+            # Send the message to the server
+            event = post(event, url)
+
+            # Message marked as complete, no longer needed 
+            if bucket == "complete":
+                queue['complete'].pop(message_id, None)
+
+
     post(event, url)
     if opts['websocket']:
         webs.close()

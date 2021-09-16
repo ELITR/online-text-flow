@@ -1,6 +1,4 @@
-FROM python:3.6
-
-# Add perl and stdbuf for the mosestokenizer package
+FROM python:3.7
 COPY . .
-RUN python3 ./setup.py install
+RUN make 
 
