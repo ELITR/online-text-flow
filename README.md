@@ -193,6 +193,8 @@ The [`server/config.py`](elitr/onlinetextflow/server/config.py) defines the defa
       -j, --json    Output the events as JSON objects with detailed information
                     about the data, the flow, the text, and other indicators.
       -t, --text    Output the resulting text split into classes by empty lines.
+      --legacy      Parse and complete the text flow using the legacy algorithm.
+                    [default: False]
       --timestamps  Output the real events timestamps as the 3rd and 4th space-
                     separated column. The timestamps are approximated from the
                     input segments by length in characters.  [default: False]

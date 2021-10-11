@@ -63,10 +63,14 @@ class Flow():
             self.flow = flow[:f] + [data] + flow[t + 1:]
             self.drop = flow[f:t + 1]
             self.this = f
-            if data[1] <= flow[-1][1]:
-                self.sure = f + 1
-            if data[0] >= flow[-1][1]:
-                self.sure = f
+            if opts['legacy']:
+                if data[1] <= flow[-1][1]:
+                    self.sure = f + 1
+                if data[0] >= flow[-1][1]:
+                    self.sure = f
+            else:
+                if data[0] > flow[-1][0]:
+                    self.sure = f
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
                 words = self.flow[f + 1][2].split()
                 count = len(data[2].split())
@@ -240,14 +244,16 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
               'about the data, the flow, the text, and other indicators.')
 @click.option('-t', '--text', 'mode', flag_value='-t',
               help='Output the resulting text split into classes by empty lines.')
-@click.option('--timestamps', 'timestamps',is_flag=True, default=False, show_default=True,
+@click.option('--legacy', 'legacy', is_flag=True, default=False, show_default=True,
+              help='Parse and complete the text flow using the legacy algorithm.')
+@click.option('--timestamps', 'timestamps', is_flag=True, default=False, show_default=True,
               help='Output the real events timestamps as the 3rd and 4th '
               'space-separated column. The timestamps are approximated '
               'from the input segments by length in characters.')
 @click.option('-b', '--brief', is_flag=True, default=False, show_default=True,
               help='Input is converted from the "brief" text flow to the '
               'original "verbose" protocol with repeated sentences.')
-def main(lang, mode, timestamps, brief):
+def main(lang, mode, legacy, timestamps, brief):
     """
     Turn data from speech recognition into text for machine translation. The
     emitted events are classified sentences rather than text chunks evolving
@@ -256,6 +262,7 @@ def main(lang, mode, timestamps, brief):
     LANG is the language code passed to MosesSentenceSplitter, 'en' if none.
     """
     opts[mode] = mode
+    opts['legacy'] = legacy
     try:
         events(sys.stdin, brief, timestamps, lang)
     except KeyboardInterrupt:
