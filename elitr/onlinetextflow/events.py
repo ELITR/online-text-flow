@@ -89,8 +89,11 @@ class Flow():
         self.crop = 0
         for i in range(len(flow)):
             sents, w_beg = self._timestamped_sentences(*flow[i], words, w_beg)
-            words = sents[-1][::]
-            if self.timestamps:
+            try:
+                words = sents[-1][::]
+            except:
+                words = None
+            if self.timestamps and words:
                 words[0] = words[0].split()[-1]
             if len(sents) > 1:
                 if i < self.sure:
