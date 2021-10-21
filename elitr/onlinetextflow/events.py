@@ -60,17 +60,16 @@ class Flow():
                 if flow[t][1] > data[1]:
                     t -= 1
                     break
-            self.flow = flow[:f] + [data] + flow[t + 1:]
-            self.drop = flow[f:t + 1]
-            self.this = f
             if opts['legacy']:
                 if data[1] <= flow[-1][1]:
                     self.sure = f + 1
                 if data[0] >= flow[-1][1]:
                     self.sure = f
             else:
-                if data[0] > flow[-1][0]:
-                    self.sure = f
+                self.sure = f
+            self.this = f
+            self.flow = flow[:f] + [data] + flow[t + 1:]
+            self.drop = flow[f:t + 1]
             if len(self.flow) > f + 1 and self.flow[f + 1][0] < data[1]:
                 words = self.flow[f + 1][2].split()
                 count = len(data[2].split())
