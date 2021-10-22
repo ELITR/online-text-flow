@@ -2329,7 +2329,7 @@
     600600,
     "decline into decrepitude, age as pathology. But many people today, philosophers, artists,"
   ],
-  "sure": 1,
+  "sure": 2,
   "text": {
     "complete": [],
     "expected": [
@@ -2354,7 +2354,7 @@
     547100,
     "decline into decrepitude, age"
   ],
-  "sure": 1,
+  "sure": 2,
   "text": {
     "complete": [],
     "expected": [
@@ -29579,15 +29579,16 @@
     5771500,
     "and alter our relationship, revision our relationship to past people and events. Neural pathways can share"
   ],
-  "sure": 8,
+  "sure": 1,
   "text": {
-    "complete": [],
-    "expected": [
+    "complete": [
       [
         8400,
-        8410,
+        8500,
         "Neural pathways are laid down by chemical and electrical signals that are sent through the brain and over time these neural pathways become hardwired. they become the norm, even if it's bad for us, because it causes us stress and anxiety."
-      ],
+      ]
+    ],
+    "expected": [
       [
         8500,
         8510,
@@ -29609,15 +29610,10 @@
     5779500,
     "and alter our relationship, revision our relationship to past people and events. Neural pathways can change, and if"
   ],
-  "sure": 8,
+  "sure": 1,
   "text": {
     "complete": [],
     "expected": [
-      [
-        8400,
-        8410,
-        "Neural pathways are laid down by chemical and electrical signals that are sent through the brain and over time these neural pathways become hardwired. they become the norm, even if it's bad for us, because it causes us stress and anxiety."
-      ],
       [
         8500,
         8510,
@@ -29639,15 +29635,10 @@
     5784300,
     "and alter our relationship, revision our relationship to past people and events. Neural pathways can change, and if we can"
   ],
-  "sure": 8,
+  "sure": 1,
   "text": {
     "complete": [],
     "expected": [
-      [
-        8400,
-        8410,
-        "Neural pathways are laid down by chemical and electrical signals that are sent through the brain and over time these neural pathways become hardwired. they become the norm, even if it's bad for us, because it causes us stress and anxiety."
-      ],
       [
         8500,
         8510,
@@ -29669,15 +29660,10 @@
     5726200,
     "and alter our relationship, revision our"
   ],
-  "sure": 8,
+  "sure": 1,
   "text": {
     "complete": [],
     "expected": [
-      [
-        8400,
-        8410,
-        "Neural pathways are laid down by chemical and electrical signals that are sent through the brain and over time these neural pathways become hardwired. they become the norm, even if it's bad for us, because it causes us stress and anxiety."
-      ],
       [
         8500,
         8510,
@@ -29701,13 +29687,7 @@
   ],
   "sure": 2,
   "text": {
-    "complete": [
-      [
-        8400,
-        8500,
-        "Neural pathways are laid down by chemical and electrical signals that are sent through the brain and over time these neural pathways become hardwired. they become the norm, even if it's bad for us, because it causes us stress and anxiety."
-      ]
-    ],
+    "complete": [],
     "expected": [
       [
         8500,
@@ -34954,7 +34934,7 @@
     6739400,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -34979,7 +34959,7 @@
     6747000,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -35004,7 +34984,7 @@
     6751800,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -35029,7 +35009,7 @@
     6757400,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -35054,7 +35034,7 @@
     6765000,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -35079,7 +35059,7 @@
     6769800,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
@@ -35104,7 +35084,7 @@
     6773500,
     "Thank you very much. Thank you"
   ],
-  "sure": 3,
+  "sure": 4,
   "text": {
     "complete": [],
     "expected": [
