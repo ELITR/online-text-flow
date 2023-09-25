@@ -1,7 +1,7 @@
 # online-text-flow
 Online event streaming to improve data and text flows
 
-[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief Format](#brief-format)
+[Setup](#setup) | [Quick Tips](#quick-tips) | [Further Notes](#further-notes) | [Example](#example) | [Brief Format](#brief-format) | [Troubleshooting](#troubleshooting)
 
 <img title="review the text" src="data/elitr-theaitre-review.png" width="45%"> <img title="resume scrolling" src="data/elitr-theaitre-scroll.png" width="45%">
 
@@ -71,6 +71,9 @@ The [`setup/`](setup/) directory contains the [`nginx`](setup/nginx) config as w
 Use `ws://quest.ms.mff.cuni.cz/textflow`, `ws://quest.ms.mff.cuni.cz/elitr/monday-seminars`, etc. for streaming up the data to the [server](#online-text-flow-server--server__init__py) with the [client](#online-text-flow-client--clientpy) via websockets. Remember to modify both the [nginx](setup/nginx) config and the [setup/](setup/) scripts accordingly if changing or introducing new mountpoints.
 
 The design features of the frontend are described in the [index](#elitronlinetextflowserverindexhtml) and [login](#elitronlinetextflowserverloginhtml) sections.
+
+### Running OTF on textflow
+A clone of this repository is located here: ```/home/kumar/online-text-flow```. To use this, please switch user as ```kumar``` and do ```sudo setup/start``` to start OTF and ```sudo setup/stop``` to stop OTF. You can specify the endpoint, (the most used being ```elitr/demo```) here: ```/home/kumar/online-text-flow/setup/start```.
 
 ## Quick Tips
 
@@ -482,3 +485,6 @@ The difference is illustrated here:
 200 201 Thank there have been many revolutions over the last century, but perhaps none as significant as...
 200 210 Thank there have been many revolutions over the last century.
 ```
+## Troubleshooting
+
+On Quest, sometimes port 80 is occupied by nginx, which leads to ```bad gateway error``` on the webpage. To fix this, please run ```sudo nginx -s stop```. The logs by default get saved as ```80.log``` file in the directory, this can be used to find how many people are connected to OTF at any given moment. A regex-based approach for the same is present here: ```/home/kumar/log-number-of-user.sh``` .
