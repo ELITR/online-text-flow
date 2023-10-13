@@ -40,10 +40,7 @@ class Flow():
            from wtpsplit import WtP
            # downloads the model from huggingface on the first use
            wtp = WtP("wtp-canine-s-12l-no-adapters")
-           class WtPtok:
-               def split(self, sent):
-                   return wtp.split(sent, lang_code=None)
-           splitter = WtPtok()
+           splitter = lambda sent: list(wtp.split(sent, lang_code=None))[0]
         else:
             splitter = MosesSentenceSplitter(lang)
         self.splitter = splitter
