@@ -36,7 +36,17 @@ class Flow():
         self.done = 0
         self.text = empty()
         self.timestamps = timestamps
-        self.splitter = MosesSentenceSplitter(lang)
+        if lang == "multi":
+           from wtpsplit import WtP
+           # downloads the model from huggingface on the first use
+           wtp = WtP("wtp-canine-s-12l-no-adapters")
+           class WtPtok:
+               def split(self, sent):
+                   return wtp.split(sent, lang_code=None)
+           splitter = WtPtok()
+        else:
+            splitter = MosesSentenceSplitter(lang)
+        self.splitter = splitter
 
     def update(self, data):
         self.data = data
