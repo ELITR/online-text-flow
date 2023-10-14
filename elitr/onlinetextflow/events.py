@@ -39,8 +39,15 @@ class Flow():
         if lang == "multi":
            from wtpsplit import WtP
            # downloads the model from huggingface on the first use
-           wtp = WtP("wtp-canine-s-12l-no-adapters")
-           splitter = lambda sent: list(wtp.split(sent, lang_code=None))[0]
+           wtp = WtP("wtp-bert-mini")
+           def wtpspl(sent):
+               print("SENT:", sent, file=sys.stderr)
+               s = list(wtp.split(sent, lang_code=None))
+               for j in s[1:]:
+                   s[0].extend(j)
+               print(len(s), s, file=sys.stderr)
+               return s[0]
+           splitter = wtpspl 
         else:
             splitter = MosesSentenceSplitter(lang)
         self.splitter = splitter
