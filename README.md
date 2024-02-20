@@ -75,6 +75,8 @@ The design features of the frontend are described in the [index](#elitronlinetex
 ### Running OTF on textflow
 A clone of this repository is located here: ```/home/kumar/online-text-flow```. To use this, please switch user as ```kumar``` and do ```sudo setup/start``` to start OTF and ```sudo setup/stop``` to stop OTF. You can specify the endpoint, (the most used being ```elitr/demo```) here: ```/home/kumar/online-text-flow/setup/start```.
 
+Note: A restart on textflow triggers nginx to start and it occupies the ports being used by otf, if you see the error of ```port already in use```, please check and kill the nginx process first.
+
 ## Quick Tips
 
 Process the data locally:
