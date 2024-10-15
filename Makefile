@@ -6,7 +6,13 @@ T=time
 install:
 	make clear
 	python3 setup.py bdist_wheel ; pip install dist/online_text_flow-*-py3-none-any.whl
+
+installcheck:
+	make clear
+	python3 setup.py bdist_wheel ; pip install dist/online_text_flow-*-py3-none-any.whl
 	make check
+
+
 
 # the very first run after installation might be slower than the following, don't count it. Optimal is when the two options take the same time, around 300ms
 check:
