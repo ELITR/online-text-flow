@@ -208,6 +208,7 @@ def bug_fix_repetitions(in_stream):
         yield "%d %d %s\n" % (beg*10, end*10+i, line)
 
 
+NOSPACE = "þŽŘÝþ"
 
 def yield_events(in_stream, timestamps=False, lang="en"):
     flow = Flow(timestamps, lang)
@@ -215,10 +216,15 @@ def yield_events(in_stream, timestamps=False, lang="en"):
     for line in bug_fix_repetitions(in_stream):
         try:
             line = re.sub('<[^<>]*>', ' ', line)
-            data = line.split()
-            data = [int(data[0]), int(data[1]), " ".join(data[2:])]
+            (b,e), text = textflow_protocol.parse(line, types=[int,int])
+            if text.endswith("\n"):
+                text = text[:-1]
+            if not text.startswith(" "):
+                text = NOSPACE+text
+#            print("tady",text,file=sys.stderr)
+            data = [b,e,text]
         except:
-            print(line, file=sys.stderr, flush=True)
+            print("except",line, file=sys.stderr, flush=True)
         else:
             flow.update(data)
             if '-t' in opts:
@@ -250,6 +256,7 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
     else:
         wrap = lambda x: x
     for line in wrap(yield_events(in_stream, timestamps, lang)):
+        line = line.replace(" "+NOSPACE,"")
         print(line,flush=True)
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
