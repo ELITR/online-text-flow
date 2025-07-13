@@ -256,8 +256,10 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
     else:
         wrap = lambda x: x
     for line in wrap(yield_events(in_stream, timestamps, lang)):
+        (b,e),line = textflow_protocol.parse(line,[int,int])
         line = line.replace(" "+NOSPACE,"")
-        print(line,flush=True)
+        line = line.replace(NOSPACE,"")
+        print(b,e,line,flush=True)
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('lang', default='en')
