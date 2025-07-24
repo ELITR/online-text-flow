@@ -19,6 +19,8 @@ from mosestokenizer import MosesSentenceSplitter
 from . import textflow_protocol
 
 
+
+
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
 opts = {}
@@ -36,7 +38,15 @@ class Flow():
         self.done = 0
         self.text = empty()
         self.timestamps = timestamps
-        if lang == "multi":
+        self.split_on = None
+        if lang in ["ja","zh","zh-sim","zh-tr"]:
+           from .sentence_segmenter import SentenceSegmenter
+           spl = SentenceSegmenter()
+           self.split_on = "ŽŽ####ŽŽ"
+           def splitter(list_of_sent):
+                y = spl("".join(list_of_sent))
+                return y
+        elif lang == "multi":
            from wtpsplit import WtP
            # downloads the model from huggingface on the first use
            wtp = WtP("wtp-bert-mini")
