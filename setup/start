@@ -29,10 +29,11 @@ cd $logs
 #                                   --pass '' en cs \
 #                                   --path elitr/theaitre --host 0.0.0.0 --port 80 > 80.log 2>&1 &
 
-nohup sudo online-text-flow server --view 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FTheaitre%2Fvideos%2F851406275425274%2F&show_text=false&width=560' \
-                                   --pass '' en cs \
-                                   --path elitr/antre --host 0.0.0.0 --port 80 >> 80.log 2>&1 &
+P3=~machacek/online-text-flow/p3/bin
+#nohup sudo $P3/online-text-flow server --pass '' en cs \
+#                                   --path elitr/debug --port 7000 >> 7000.log 2>&1 &
 
+nohup $P3/online-text-flow server --path textflow   --port 5000 en --menu cs/en  > 5000.log 2>&1 &
 sleep 1
 
 cd - > /dev/null
