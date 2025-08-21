@@ -19,6 +19,8 @@ from mosestokenizer import MosesSentenceSplitter
 from . import textflow_protocol
 
 
+
+
 code = {"complete": 100, "expected": 10, "incoming": 1}
 
 opts = {}
@@ -36,7 +38,15 @@ class Flow():
         self.done = 0
         self.text = empty()
         self.timestamps = timestamps
-        if lang == "multi":
+        self.split_on = None
+        if lang in ["ja","zh","zh-sim","zh-tr"]:
+           from .sentence_segmenter import SentenceSegmenter
+           spl = SentenceSegmenter()
+           self.split_on = "ŽŽ####ŽŽ"
+           def splitter(list_of_sent):
+                y = spl("".join(list_of_sent))
+                return y
+        elif lang == "multi":
            from wtpsplit import WtP
            # downloads the model from huggingface on the first use
            wtp = WtP("wtp-bert-mini")
@@ -208,6 +218,7 @@ def bug_fix_repetitions(in_stream):
         yield "%d %d %s\n" % (beg*10, end*10+i, line)
 
 
+NOSPACE = "þŽŘÝþ"
 
 def yield_events(in_stream, timestamps=False, lang="en"):
     flow = Flow(timestamps, lang)
@@ -215,10 +226,15 @@ def yield_events(in_stream, timestamps=False, lang="en"):
     for line in bug_fix_repetitions(in_stream):
         try:
             line = re.sub('<[^<>]*>', ' ', line)
-            data = line.split()
-            data = [int(data[0]), int(data[1]), " ".join(data[2:])]
+            (b,e), text = textflow_protocol.parse(line, types=[int,int])
+            if text.endswith("\n"):
+                text = text[:-1]
+            if not text.startswith(" "):
+                text = NOSPACE+text
+#            print("tady",text,file=sys.stderr)
+            data = [b,e,text]
         except:
-            print(line, file=sys.stderr, flush=True)
+            print("except",line, file=sys.stderr, flush=True)
         else:
             flow.update(data)
             if '-t' in opts:
@@ -250,7 +266,10 @@ def events(in_stream=sys.stdin, brief=False, timestamps=False, lang="en"):
     else:
         wrap = lambda x: x
     for line in wrap(yield_events(in_stream, timestamps, lang)):
-        print(line,flush=True)
+        (b,e),line = textflow_protocol.parse(line,[int,int])
+        line = line.replace(" "+NOSPACE,"")
+        line = line.replace(NOSPACE,"")
+        print(b,e,line,flush=True)
 
 @click.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('lang', default='en')
