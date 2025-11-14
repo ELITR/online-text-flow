@@ -1,0 +1,261 @@
+
+  :root {
+    --elitrblue: rgb(10, 80, 225);
+    margin: 8px;
+    overflow-y: scroll;
+    scroll-behavior: auto; /*!!!*/
+  }
+
+  body {
+    line-height: normal;
+    background: black;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  .column {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-right: 10px;
+    position: relative; /*!!!*/
+  }
+
+  .column.hide {
+    display: none;
+  }
+
+  .complete {
+    display: table-row-group;
+    color: white;
+  }
+
+  .expected {
+    display: table-row-group;
+    color: white;
+  }
+
+  .incoming {
+    display: table-row-group;
+    color: white;
+  }
+
+  .flexible {
+    height: 300px; /*!!!*/
+  }
+
+  .flow {
+    display: table;
+    table-layout: fixed;
+    width: 100%; /*!!!*/
+  }
+
+  .data {
+    display: table-row;
+  }
+
+  .item {
+    display: table-cell;
+    padding-right: 10px;
+    vertical-align: top;
+  }
+
+  .complete .idx {
+    color: white;
+  }
+
+  .expected .idx {
+    color: white;
+  }
+
+  .incoming .idx {
+    color: white;
+  }
+
+  .idx {
+    text-align: right;
+    padding-right: 1ex;
+    width: 5ex;
+  }
+
+  .idx::after {
+    content: ".";
+  }
+
+  .fst, .snd {
+    display: none;
+  }
+
+  .trd {
+    
+  }
+
+  .ar .trd, .he .trd {
+    direction: rtl;
+  }
+
+  .empty::before {
+    content: "no text yet";
+    font-style: italic;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    margin: 230px 0px 0px;
+    color: white;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    margin: 5px 0px 20px 0px;
+  }
+
+  .bar {
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    width: 80px;
+  }
+
+  .bar button {
+    display: block;
+    width: 60px;
+    padding: 8px 0px;
+    margin: 5px 10px;
+    border: 1px solid var(--elitrblue);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    background-color: var(--elitrblue);
+  }
+
+  .bar button.hide {
+    color: var(--elitrblue);
+    background-color: white;
+  }
+
+  #display button {
+    display: block;
+    width: 40px;
+    height: 35px;
+    padding: 4px 0px;
+    margin: 2px 4px;
+    border: 1px solid var(--elitrblue);
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+    background-color: var(--elitrblue);
+  }
+
+  #display button.hide {
+    color: white;
+    background-color: black;
+  }
+
+  #content {
+    padding-right: 80px;
+  }
+
+  #upper {
+
+  }
+
+  #lower {
+    position: absolute;
+    bottom: 10px;
+  }
+
+  #control {
+
+  }
+
+  #preview {
+    background-color: white;
+    width: 320px;
+    height: 180px;
+    position: fixed; /*!!!*/
+    top: 8px;
+    left: 8px;
+    margin: 20px 0px; /*!!!*/
+  }
+
+  #display {
+    position: fixed;
+    top: 8px;
+    right: 100px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 220px;
+    width: 440px;
+    padding: 4px 4px 0px;
+    background-color: black;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+  }
+
+  .draggable {
+    cursor: grab;
+    height: 20px;
+    width: 100%;
+    position: absolute;
+    top: -20px;
+    right: 0px;
+    padding: 2px 3px 3px;
+    text-align: left;
+    color: white;
+    background-color: red;
+  }
+
+  .draggable:hover {
+    cursor: grab;
+  }
+
+  .resizable {
+    cursor: nwse-resize;
+    height: 20px;
+    width: 100%;
+    position: absolute;
+    bottom: -20px;
+    left: 0px;
+    padding: 2px 3px 3px;
+    text-align: right;
+    color: white;
+    background-color: orange;
+  }
+
+  .resizable:hover {
+    cursor: nwse-resize;
+  }
+
+  .ui-draggable-dragging:after {
+    content: "";
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
+
+  .ui-resizable-resizing:after {
+    content: "";
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
+
