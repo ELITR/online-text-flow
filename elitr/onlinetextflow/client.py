@@ -64,7 +64,7 @@ def wrapped_input_stream(in_stream):
 def client(kind, url):
     if opts['websocket']:
         try:
-            webs.connect(url + '/send')
+            webs.connect(url + '/send', ping_interval=30, ping_timeout=10)
         except:
             url = re.sub('^ws', 'http', url)
             opts['websocket'] = False
